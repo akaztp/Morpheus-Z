@@ -70,6 +70,9 @@ juce_add_plugin(Morpheus-Z
 
 target_sources(Morpheus-Z
     PRIVATE
+        src/SineWaveSound.cpp
+        src/SineWaveVoice.cpp
+        src/SynthAudioSource.cpp
         src/PluginEditor.cpp
         src/PluginProcessor.cpp)
 
