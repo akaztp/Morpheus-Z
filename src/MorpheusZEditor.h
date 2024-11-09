@@ -38,6 +38,11 @@ private:
 	WaveformUI waveformAUI;
 	WaveformUI waveformBUI;
 
+	enum WaveformPosition {
+		Left = 0,
+		Right = 1
+	};
+
 	void handleWaveformDraw(
 			const WaveformUI& waveform,
 			int waveformSize,

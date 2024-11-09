@@ -7,11 +7,11 @@ MorpheusZEditor::MorpheusZEditor(MorpheusZProcessor& p)
 		  processorRef(p),
 		  keyboardComponent(processorRef.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard),
 		  waveformAUI(thumbnailCache, formatManager,
-				  std::move([this](const juce::Point<int>& from, const juce::Point<int>& to)
+				  [this](const juce::Point<int>& from, const juce::Point<int>& to)
 				  {
 					  this->handleWaveformDraw(waveformAUI, waveformASize, from, to,
 							  &MorpheusZProcessor::setWaveformAValue);
-				  })),
+				  }),
 		  waveformBUI(thumbnailCache, formatManager,
 				  [this](const juce::Point<int>& from, const juce::Point<int>& to)
 				  {
@@ -58,15 +58,15 @@ void MorpheusZEditor::paint(juce::Graphics& g)
 void MorpheusZEditor::resized()
 {
 	keyboardComponent.setBounds(0, getHeight() - keyboardHeight, getWidth(), keyboardHeight);
-	resizeWaveform(waveformAUI, 0);
-	resizeWaveform(waveformBUI, 1);
+	resizeWaveform(waveformAUI, MorpheusZEditor::WaveformPosition::Left);
+	resizeWaveform(waveformBUI, MorpheusZEditor::WaveformPosition::Right);
 }
 
 void MorpheusZEditor::resizeWaveform(WaveformUI& waveformUI, int position)
 {
-	auto width = (getWidth() - margin * 3) / 2;
-	auto left = margin + position * width + margin * position;
-	int height = getHeight() - keyboardHeight - 2 * margin;
+	const auto width = (getWidth() - margin * 3) / 2;
+	const auto left = margin + position * width + margin * position;
+	const int height = getHeight() - keyboardHeight - 2 * margin;
 	waveformUI.setBounds(left, margin, width, height);
 }
 
