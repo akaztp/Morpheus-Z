@@ -27,5 +27,6 @@ private:
 	std::function<void(const juce::Point<int>& from, const juce::Point<int>& to)> onDraw;
 	juce::Point<int> lastMousePosition;
 
-	bool forceBounds(juce::Point<int>& pos);
+	bool forceHorizontalBounds(juce::Point<int>& pos);
+	void forceVerticalBounds(juce::Point<int>& pos);
 };

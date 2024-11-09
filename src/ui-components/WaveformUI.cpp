@@ -64,14 +64,15 @@ void WaveformUI::mouseDrag(const juce::MouseEvent& event)
 	{ return; }
 
 	auto pos = event.getPosition();
-	const auto forced = forceBounds(pos);
+	forceVerticalBounds(pos);
+	const auto forcedHorizontally = forceHorizontalBounds(pos);
 	const auto x = pos.getX();
 	const auto y = pos.getY();
 	const auto lastX = lastMousePosition.getX();
 	const auto lastY = lastMousePosition.getY();
 	if (x == lastX)
 	{
-		if (y != lastY && !forced)
+		if (y != lastY && !forcedHorizontally)
 		{
 			onDraw(pos, pos);
 		}
@@ -91,7 +92,7 @@ void WaveformUI::mouseDrag(const juce::MouseEvent& event)
 	lastMousePosition = pos;
 }
 
-bool WaveformUI::forceBounds(juce::Point<int>& pos)
+bool WaveformUI::forceHorizontalBounds(juce::Point<int>& pos)
 {
 	auto forced = false;
 	const auto x = pos.getX();
@@ -106,4 +107,17 @@ bool WaveformUI::forceBounds(juce::Point<int>& pos)
 		forced = true;
 	}
 	return forced;
+}
+
+void WaveformUI::forceVerticalBounds(juce::Point<int>& pos)
+{
+	const auto y = pos.getY();
+	if (y >= getHeight())
+	{
+		pos.y = getHeight() - 1;
+	}
+	else if (y < 0)
+	{
+		pos.y = 0;
+	}
 }
