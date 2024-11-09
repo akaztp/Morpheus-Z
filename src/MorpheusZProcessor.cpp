@@ -1,8 +1,9 @@
-#include "PluginProcessor.h"
-#include "PluginEditor.h"
+#include "MorpheusZProcessor.h"
+#include "MorpheusZEditor.h"
+#include "waveformPresets.h"
 
 //==============================================================================
-AudioPluginAudioProcessor::AudioPluginAudioProcessor()
+MorpheusZProcessor::MorpheusZProcessor()
 		: AudioProcessor(BusesProperties()
 #if !JucePlugin_IsMidiEffect
 #if !JucePlugin_IsSynth
@@ -14,17 +15,17 @@ AudioPluginAudioProcessor::AudioPluginAudioProcessor()
 {
 }
 
-AudioPluginAudioProcessor::~AudioPluginAudioProcessor()
+MorpheusZProcessor::~MorpheusZProcessor()
 {
 }
 
 //==============================================================================
-const juce::String AudioPluginAudioProcessor::getName() const
+const juce::String MorpheusZProcessor::getName() const
 {
 	return JucePlugin_Name;
 }
 
-bool AudioPluginAudioProcessor::acceptsMidi() const
+bool MorpheusZProcessor::acceptsMidi() const
 {
 #if JucePlugin_WantsMidiInput
 	return true;
@@ -33,7 +34,7 @@ bool AudioPluginAudioProcessor::acceptsMidi() const
 #endif
 }
 
-bool AudioPluginAudioProcessor::producesMidi() const
+bool MorpheusZProcessor::producesMidi() const
 {
 #if JucePlugin_ProducesMidiOutput
 	return true;
@@ -42,7 +43,7 @@ bool AudioPluginAudioProcessor::producesMidi() const
 #endif
 }
 
-bool AudioPluginAudioProcessor::isMidiEffect() const
+bool MorpheusZProcessor::isMidiEffect() const
 {
 #if JucePlugin_IsMidiEffect
 	return true;
@@ -51,50 +52,58 @@ bool AudioPluginAudioProcessor::isMidiEffect() const
 #endif
 }
 
-double AudioPluginAudioProcessor::getTailLengthSeconds() const
+double MorpheusZProcessor::getTailLengthSeconds() const
 {
 	return 0.0;
 }
 
-int AudioPluginAudioProcessor::getNumPrograms()
+int MorpheusZProcessor::getNumPrograms()
 {
 	return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
 	// so this should be at least 1, even if you're not really implementing programs.
 }
 
-int AudioPluginAudioProcessor::getCurrentProgram()
+int MorpheusZProcessor::getCurrentProgram()
 {
 	return 0;
 }
 
-void AudioPluginAudioProcessor::setCurrentProgram(int index)
+void MorpheusZProcessor::setCurrentProgram(int index)
 {
 	juce::ignoreUnused(index);
 }
 
-const juce::String AudioPluginAudioProcessor::getProgramName(int index)
+const juce::String MorpheusZProcessor::getProgramName(int index)
 {
 	juce::ignoreUnused(index);
 	return {};
 }
 
-void AudioPluginAudioProcessor::changeProgramName(int index, const juce::String& newName)
+void MorpheusZProcessor::changeProgramName(int index, const juce::String& newName)
 {
 	juce::ignoreUnused(index, newName);
 }
 
 //==============================================================================
-void AudioPluginAudioProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
+void MorpheusZProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
 	synthAudioSource.prepareToPlay(samplesPerBlock, sampleRate);
+
+	std::unique_ptr<juce::AudioSampleBuffer> sine = waveformPresets::sine(waveformSize);
+	waveformA.copyFrom(0, 0, *sine, 0, 0, waveformSize);
+	synthAudioSource.setWaveA(waveformA);
+
+	std::unique_ptr<juce::AudioSampleBuffer> triangle = waveformPresets::triangle(waveformSize);
+	waveformB.copyFrom(0, 0, *triangle, 0, 0, waveformSize);
+	synthAudioSource.setWaveB(waveformB);
 }
 
-void AudioPluginAudioProcessor::releaseResources()
+void MorpheusZProcessor::releaseResources()
 {
 	synthAudioSource.releaseResources();
 }
 
-bool AudioPluginAudioProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
+bool MorpheusZProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
 {
 #if JucePlugin_IsMidiEffect
 	juce::ignoreUnused (layouts);
@@ -118,7 +127,7 @@ bool AudioPluginAudioProcessor::isBusesLayoutSupported(const BusesLayout& layout
 #endif
 }
 
-void AudioPluginAudioProcessor::processBlock(
+void MorpheusZProcessor::processBlock(
 		juce::AudioBuffer<float>& buffer,
 		juce::MidiBuffer& midiMessages)
 {
@@ -126,21 +135,25 @@ void AudioPluginAudioProcessor::processBlock(
 
 	juce::AudioSourceChannelInfo channelInfo(buffer);
 	synthAudioSource.getNextAudioBlock(channelInfo, midiMessages);
+	midiMessages.clear();
+}
+
+bool MorpheusZProcessor::hasEditor() const
+{
+	return true;
+}
+
+juce::AudioProcessorEditor* MorpheusZProcessor::createEditor()
+{
+	auto editor = new MorpheusZEditor(*this);
+	const auto sampleRate = getSampleRate();
+	editor->setWaveformA(waveformA, sampleRate);
+	editor->setWaveformB(waveformB, sampleRate);
+	return editor;
 }
 
 //==============================================================================
-bool AudioPluginAudioProcessor::hasEditor() const
-{
-	return true; // (change this to false if you choose to not supply an editor)
-}
-
-juce::AudioProcessorEditor* AudioPluginAudioProcessor::createEditor()
-{
-	return new AudioPluginAudioProcessorEditor(*this);
-}
-
-//==============================================================================
-void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
+void MorpheusZProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
 	// You should use this method to store your parameters in the memory block.
 	// You could do that either as raw data, or use the XML or ValueTree classes
@@ -148,16 +161,39 @@ void AudioPluginAudioProcessor::getStateInformation(juce::MemoryBlock& destData)
 	juce::ignoreUnused(destData);
 }
 
-void AudioPluginAudioProcessor::setStateInformation(const void* data, int sizeInBytes)
+void MorpheusZProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
 	// You should use this method to restore your parameters from this memory block,
 	// whose contents will have been created by the getStateInformation() call.
 	juce::ignoreUnused(data, sizeInBytes);
 }
 
+void MorpheusZProcessor::setWaveformAValue(int index, float value)
+{
+	waveformA.setSample(0, index, value);
+	synthAudioSource.setWaveA(waveformA);
+	auto editor = dynamic_cast<MorpheusZEditor*>(getActiveEditor());
+	if (editor != nullptr)
+	{
+		editor->setWaveformA(waveformA, getSampleRate());
+	}
+}
+
+void MorpheusZProcessor::setWaveformBValue(int index, float value)
+{
+	waveformB.setSample(0, index, value);
+	synthAudioSource.setWaveB(waveformB);
+	auto editor = dynamic_cast<MorpheusZEditor*>(getActiveEditor());
+	if (editor != nullptr)
+	{
+		editor->setWaveformB(waveformB, getSampleRate());
+	}
+}
+
+
 //==============================================================================
 // This creates new instances of the plugin..
 juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 {
-	return new AudioPluginAudioProcessor();
+	return new MorpheusZProcessor();
 }

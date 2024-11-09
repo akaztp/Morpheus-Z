@@ -16,6 +16,8 @@ cmake_minimum_required(VERSION 3.22)
 
 project(Morpheus-Z VERSION 0.0.1)
 
+set_property(GLOBAL PROPERTY USE_FOLDERS YES)
+
 # If you've installed JUCE somehow (via a package manager, or directly using the CMake install
 # target), you'll need to tell this project that it depends on the installed copy of JUCE. If you've
 # included JUCE directly in your source tree (perhaps as a submodule), you'll need to tell CMake to
@@ -70,11 +72,13 @@ juce_add_plugin(Morpheus-Z
 
 target_sources(Morpheus-Z
     PRIVATE
-        src/SineWaveSound.cpp
-        src/SineWaveVoice.cpp
+        src/ui-components/WaveformUI.cpp
+        src/waveformPresets.cpp
+        src/MorphSound.cpp
+        src/MorphVoice.cpp
         src/SynthAudioSource.cpp
-        src/PluginEditor.cpp
-        src/PluginProcessor.cpp)
+        src/MorpheusZEditor.cpp
+        src/MorpheusZProcessor.cpp)
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer
 # project, these might be passed in the 'Preprocessor Definitions' field. JUCE modules also make use

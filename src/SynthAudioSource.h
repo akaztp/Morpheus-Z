@@ -1,56 +1,29 @@
 #pragma once
 
-#include "juce_audio_basics/juce_audio_basics.h"
-#include "SineWaveVoice.h"
-#include "SineWaveSound.h"
+#include <juce_audio_basics/juce_audio_basics.h>
+#include "MorphSound.h"
+#include "MorphVoice.h"
 
 class SynthAudioSource : public juce::AudioSource
 {
 public:
-	SynthAudioSource(juce::MidiKeyboardState& keyState)
-			: keyboardState(keyState)
-	{
-		for (auto i = 0; i < 4; ++i)                // [1]
-			synth.addVoice(new SineWaveVoice());
+	explicit SynthAudioSource(juce::MidiKeyboardState& keyState);
 
-		synth.addSound(new SineWaveSound());       // [2]
-	}
+	void prepareToPlay(int /*samplesPerBlockExpected*/, double sampleRate) override;
 
-	void prepareToPlay(int /*samplesPerBlockExpected*/, double sampleRate) override
-	{
-		synth.setCurrentPlaybackSampleRate(sampleRate); // [3]
-	}
+	void releaseResources() override;
 
-	void releaseResources() override
-	{
-	}
+	void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill) override;
 
-	void getNextAudioBlock(
-			const juce::AudioSourceChannelInfo& bufferToFill) override
-	{
-		juce::MidiBuffer emptyMidiBuffer;
-		getNextAudioBlock(bufferToFill, emptyMidiBuffer);
-	}
+	void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill, juce::MidiBuffer& midiMessages);
 
-	void getNextAudioBlock(
-			const juce::AudioSourceChannelInfo& bufferToFill,
-			juce::MidiBuffer& midiMessages)
-	{
-		bufferToFill.clearActiveBufferRegion();
-
-		keyboardState.processNextMidiBuffer(
-				midiMessages,
-				bufferToFill.startSample,
-				bufferToFill.numSamples,
-				true);
-		synth.renderNextBlock(
-				*bufferToFill.buffer,
-				midiMessages,
-				bufferToFill.startSample,
-				bufferToFill.numSamples);
-	}
+	void setWaveA(juce::AudioSampleBuffer& waveform);
+	void setWaveB(juce::AudioSampleBuffer& waveform);
 
 private:
 	juce::MidiKeyboardState& keyboardState;
 	juce::Synthesiser synth;
+	int polyphony = 4;
+	MorphSound* morphSound = new MorphSound();
+
 };

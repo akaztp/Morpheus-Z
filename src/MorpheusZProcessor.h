@@ -2,15 +2,16 @@
 
 #include <juce_audio_processors/juce_audio_processors.h>
 #include "SynthAudioSource.h"
+#include "MorpheusZEditor.h"
 
 //==============================================================================
-class AudioPluginAudioProcessor final : public juce::AudioProcessor
+class MorpheusZProcessor final : public juce::AudioProcessor
 {
 public:
 	//==============================================================================
-	AudioPluginAudioProcessor();
+	MorpheusZProcessor();
 
-	~AudioPluginAudioProcessor() override;
+	~MorpheusZProcessor() override;
 
 	//==============================================================================
 	void prepareToPlay(double sampleRate, int samplesPerBlock) override;
@@ -57,9 +58,15 @@ public:
 
 	juce::MidiKeyboardState keyboardState;
 
+	void setWaveformAValue(int index, float value);
+
+	void setWaveformBValue(int index, float value);
+
 private:
+	int waveformSize = 512;
+	juce::AudioSampleBuffer waveformA{ 1, waveformSize };
+	juce::AudioSampleBuffer waveformB{ 1, waveformSize };
 	SynthAudioSource synthAudioSource;
 
-	//==============================================================================
-	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioPluginAudioProcessor)
+	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MorpheusZProcessor)
 };
