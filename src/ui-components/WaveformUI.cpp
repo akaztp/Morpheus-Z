@@ -1,12 +1,15 @@
 #include "WaveformUI.h"
+#include "../StylesStore.h"
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <utility>
 
 WaveformUI::WaveformUI(
+		const StylesStore& stylesStore,
 		juce::AudioThumbnailCache& thumbnailCache,
 		juce::AudioFormatManager& formatManager,
 		std::function<void(const juce::Point<int>& from, const juce::Point<int>& to)> onDrawCallback)
-		: thumbnail(1, formatManager, thumbnailCache),
+		: stylesStore(stylesStore),
+		  thumbnail(1, formatManager, thumbnailCache),
 		  onDraw(std::move(onDrawCallback))
 {
 	thumbnail.addChangeListener(this);
@@ -33,12 +36,15 @@ void WaveformUI::changeListenerCallback(juce::ChangeBroadcaster* source)
 
 void WaveformUI::paint(juce::Graphics& g)
 {
-	const juce::Rectangle<int> thumbnailBounds(0, 0, getWidth(), getHeight());
-	g.setColour(juce::Colours::black);
+	const auto width = getWidth();
+	const auto height = getHeight();
+	const juce::Rectangle<int> thumbnailBounds(0, 0, width, height);
+
+	g.setColour(stylesStore.getColor(StylesStore::ColorIds::WaveformUI_background));
 	g.fillRect(thumbnailBounds);
-	g.setColour(juce::Colours::darkgrey);
-	g.drawHorizontalLine(getHeight() / 2, 0.0f, static_cast<float>(getWidth()) - 1.0f);
-	g.setColour(juce::Colours::orange);
+	g.setColour(stylesStore.getColor(StylesStore::ColorIds::WaveformUI_zero));
+	g.drawHorizontalLine(height / 2, 0.0f, static_cast<float>(width) - 1.0f);
+	g.setColour(stylesStore.getColor(StylesStore::ColorIds::WaveformUI_signal));
 	thumbnail.drawChannel(g,
 			thumbnailBounds,
 			0.0,

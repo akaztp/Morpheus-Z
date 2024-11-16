@@ -72,6 +72,8 @@ juce_add_plugin(Morpheus-Z
 
 target_sources(Morpheus-Z
     PRIVATE
+        src/Stylesheet.cpp
+        src/StylesStore.cpp
         src/ui-components/WaveformUI.cpp
         src/waveformPresets.cpp
         src/MorphSound.cpp

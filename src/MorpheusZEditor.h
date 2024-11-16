@@ -3,6 +3,9 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "MorpheusZProcessor.h"
 #include "ui-components/WaveformUI.h"
+#include "Stylesheet.h"
+#include "StylesStore.h"
+
 
 class MorpheusZProcessor;
 
@@ -11,6 +14,8 @@ class MorpheusZEditor final : public juce::AudioProcessorEditor
 {
 public:
 	explicit MorpheusZEditor(MorpheusZProcessor&);
+
+	~MorpheusZEditor();
 
 	void paint(juce::Graphics&) override;
 
@@ -24,21 +29,23 @@ private:
 	const int numWaveforms = 2;
 	int waveformASize = 0;
 	int waveformBSize = 0;
-	const int keyboardHeight = 80;
-	const int margin = 10;
+
+	juce::LookAndFeel_V4 lookAndFeel;
+	StylesStore stylesStore;
 
 	// This reference is provided as a quick way for your editor to
 	// access the processor object that created it.
 	MorpheusZProcessor& processorRef;
 
 	juce::AudioFormatManager formatManager;
-	juce::AudioThumbnailCache thumbnailCache{ numWaveforms};
+	juce::AudioThumbnailCache thumbnailCache{ numWaveforms };
 
 	juce::MidiKeyboardComponent keyboardComponent;
 	WaveformUI waveformAUI;
 	WaveformUI waveformBUI;
 
-	enum WaveformPosition {
+	enum WaveformPosition
+	{
 		Left = 0,
 		Right = 1
 	};
