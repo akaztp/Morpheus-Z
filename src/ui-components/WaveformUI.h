@@ -3,6 +3,8 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "../StylesStore.h"
 
+typedef std::function<void(const juce::Point<int>& from, const juce::Point<int>& to)> DrawCallback;
+
 class WaveformUI : public juce::Component, juce::ChangeListener
 {
 public:
@@ -10,7 +12,7 @@ public:
 			const StylesStore& stylesStore,
 			juce::AudioThumbnailCache& thumbnailCache,
 			juce::AudioFormatManager& formatManager,
-			std::function<void(const juce::Point<int>& from, const juce::Point<int>& to)> onDrawCallback);
+			DrawCallback onDrawCallback);
 
 	~WaveformUI() override;
 

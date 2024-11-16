@@ -7,7 +7,7 @@ WaveformUI::WaveformUI(
 		const StylesStore& stylesStore,
 		juce::AudioThumbnailCache& thumbnailCache,
 		juce::AudioFormatManager& formatManager,
-		std::function<void(const juce::Point<int>& from, const juce::Point<int>& to)> onDrawCallback)
+		DrawCallback onDrawCallback)
 		: stylesStore(stylesStore),
 		  thumbnail(1, formatManager, thumbnailCache),
 		  onDraw(std::move(onDrawCallback))
