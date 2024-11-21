@@ -8,16 +8,16 @@ MorpheusZEditor::MorpheusZEditor(MorpheusZProcessor& p)
 		: AudioProcessorEditor(&p),
 		  processorRef(p),
 		  keyboardComponent(processorRef.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard),
-		  waveformAUI(stylesStore, thumbnailCache, formatManager,
+		  waveformDisplayA(stylesStore, thumbnailCache, formatManager,
 				  [this](const juce::Point<int>& from, const juce::Point<int>& to)
 				  {
-					  this->handleWaveformDraw(waveformAUI, waveformASize, from, to,
+					  this->handleWaveformDraw(waveformDisplayA, waveformASize, from, to,
 							  &MorpheusZProcessor::setWaveformAValue);
 				  }),
-		  waveformBUI(stylesStore, thumbnailCache, formatManager,
+		  waveformDisplayB(stylesStore, thumbnailCache, formatManager,
 				  [this](const juce::Point<int>& from, const juce::Point<int>& to)
 				  {
-					  this->handleWaveformDraw(waveformBUI, waveformBSize, from, to,
+					  this->handleWaveformDraw(waveformDisplayB, waveformBSize, from, to,
 							  &MorpheusZProcessor::setWaveformBValue);
 				  })
 {
@@ -28,8 +28,8 @@ MorpheusZEditor::MorpheusZEditor(MorpheusZProcessor& p)
 	setLookAndFeel(&lookAndFeel);
 
 	addAndMakeVisible(keyboardComponent);
-	addAndMakeVisible(waveformAUI);
-	addAndMakeVisible(waveformBUI);
+	addAndMakeVisible(waveformDisplayA);
+	addAndMakeVisible(waveformDisplayB);
 	setSize(600, 250);
 }
 
@@ -39,7 +39,7 @@ MorpheusZEditor::~MorpheusZEditor()
 }
 
 void MorpheusZEditor::handleWaveformDraw(
-		const WaveformUI& waveform,
+		const WaveformDisplay& waveform,
 		int waveformSize,
 		const juce::Point<int>& from,
 		const juce::Point<int>& to,
@@ -76,11 +76,11 @@ void MorpheusZEditor::resized()
 			getHeight() - keyboardHeight,
 			getWidth(),
 			keyboardHeight);
-	resizeWaveform(waveformAUI, MorpheusZEditor::WaveformPosition::Left);
-	resizeWaveform(waveformBUI, MorpheusZEditor::WaveformPosition::Right);
+	resizeWaveform(waveformDisplayA, MorpheusZEditor::WaveformPosition::Left);
+	resizeWaveform(waveformDisplayB, MorpheusZEditor::WaveformPosition::Right);
 }
 
-void MorpheusZEditor::resizeWaveform(WaveformUI& waveformUI, int position)
+void MorpheusZEditor::resizeWaveform(WaveformDisplay& waveformDisplay, int position)
 {
 	const int layoutMargin = stylesStore.getNumber(StylesStore::NumberIds::LayoutMargin);
 	const int layoutGutter = stylesStore.getNumber(StylesStore::NumberIds::LayoutGutter);
@@ -88,7 +88,7 @@ void MorpheusZEditor::resizeWaveform(WaveformUI& waveformUI, int position)
 	const auto width = (getWidth() - layoutMargin * 2 - layoutGutter) / 2;
 	const auto left = layoutMargin + position * (width + layoutGutter);
 	const int height = getHeight() - keyboardHeight - 2 * layoutMargin;
-	waveformUI.setBounds(left, layoutMargin, width, height);
+	waveformDisplay.setBounds(left, layoutMargin, width, height);
 }
 
 void MorpheusZEditor::setWaveformA(
@@ -98,7 +98,7 @@ void MorpheusZEditor::setWaveformA(
 	waveformASize = waveform.getNumSamples();
 	const auto hash = 0;
 	thumbnailCache.removeThumb(hash);
-	waveformAUI.setSource(waveform, sampleRate, hash);
+	waveformDisplayA.setSource(waveform, sampleRate, hash);
 }
 
 void MorpheusZEditor::setWaveformB(
@@ -108,5 +108,5 @@ void MorpheusZEditor::setWaveformB(
 	waveformBSize = waveform.getNumSamples();
 	const auto hash = 1;
 	thumbnailCache.removeThumb(hash);
-	waveformBUI.setSource(waveform, sampleRate, hash);
+	waveformDisplayB.setSource(waveform, sampleRate, hash);
 }

@@ -74,7 +74,7 @@ target_sources(Morpheus-Z
     PRIVATE
         src/Stylesheet.cpp
         src/StylesStore.cpp
-        src/ui-components/WaveformUI.cpp
+        src/ui-components/WaveformDisplay.cpp
         src/waveformPresets.cpp
         src/MorphSound.cpp
         src/MorphVoice.cpp

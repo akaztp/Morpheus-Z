@@ -5,16 +5,16 @@
 
 typedef std::function<void(const juce::Point<int>& from, const juce::Point<int>& to)> DrawCallback;
 
-class WaveformUI : public juce::Component, juce::ChangeListener
+class WaveformDisplay : public juce::Component, juce::ChangeListener
 {
 public:
-	explicit WaveformUI(
+	explicit WaveformDisplay(
 			const StylesStore& stylesStore,
 			juce::AudioThumbnailCache& thumbnailCache,
 			juce::AudioFormatManager& formatManager,
 			DrawCallback onDrawCallback);
 
-	~WaveformUI() override;
+	~WaveformDisplay() override;
 
 	void paint(juce::Graphics&) override;
 

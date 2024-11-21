@@ -19,9 +19,9 @@ public:
 		HighlightedFill,
 		MenuText,
 
-		WaveformUI_signal,
-		WaveformUI_zero,
-		WaveformUI_background,
+		WaveformDisplay_signal,
+		WaveformDisplay_zero,
+		WaveformDisplay_background,
 
 		numIds,
 	};

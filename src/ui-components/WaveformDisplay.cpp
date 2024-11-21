@@ -1,9 +1,9 @@
-#include "WaveformUI.h"
+#include "WaveformDisplay.h"
 #include "../StylesStore.h"
 #include <juce_audio_utils/juce_audio_utils.h>
 #include <utility>
 
-WaveformUI::WaveformUI(
+WaveformDisplay::WaveformDisplay(
 		const StylesStore& stylesStore,
 		juce::AudioThumbnailCache& thumbnailCache,
 		juce::AudioFormatManager& formatManager,
@@ -15,12 +15,12 @@ WaveformUI::WaveformUI(
 	thumbnail.addChangeListener(this);
 }
 
-WaveformUI::~WaveformUI()
+WaveformDisplay::~WaveformDisplay()
 {
 	thumbnail.removeChangeListener(this);
 }
 
-void WaveformUI::setSource(
+void WaveformDisplay::setSource(
 		const juce::AudioBuffer<float>& newSource,
 		double sampleRate,
 		juce::int64 hashCode)
@@ -28,23 +28,23 @@ void WaveformUI::setSource(
 	thumbnail.setSource(&newSource, sampleRate, hashCode);
 }
 
-void WaveformUI::changeListenerCallback(juce::ChangeBroadcaster* source)
+void WaveformDisplay::changeListenerCallback(juce::ChangeBroadcaster* source)
 {
 	juce::ignoreUnused(source);
 	repaint();
 }
 
-void WaveformUI::paint(juce::Graphics& g)
+void WaveformDisplay::paint(juce::Graphics& g)
 {
 	const auto width = getWidth();
 	const auto height = getHeight();
 	const juce::Rectangle<int> thumbnailBounds(0, 0, width, height);
 
-	g.setColour(stylesStore.getColor(StylesStore::ColorIds::WaveformUI_background));
+	g.setColour(stylesStore.getColor(StylesStore::ColorIds::WaveformDisplay_background));
 	g.fillRect(thumbnailBounds);
-	g.setColour(stylesStore.getColor(StylesStore::ColorIds::WaveformUI_zero));
+	g.setColour(stylesStore.getColor(StylesStore::ColorIds::WaveformDisplay_zero));
 	g.drawHorizontalLine(height / 2, 0.0f, static_cast<float>(width) - 1.0f);
-	g.setColour(stylesStore.getColor(StylesStore::ColorIds::WaveformUI_signal));
+	g.setColour(stylesStore.getColor(StylesStore::ColorIds::WaveformDisplay_signal));
 	thumbnail.drawChannel(g,
 			thumbnailBounds,
 			0.0,
@@ -53,7 +53,7 @@ void WaveformUI::paint(juce::Graphics& g)
 			1.0f);
 }
 
-void WaveformUI::mouseDown(const juce::MouseEvent& event)
+void WaveformDisplay::mouseDown(const juce::MouseEvent& event)
 {
 	if (onDraw == nullptr)
 	{ return; }
@@ -64,7 +64,7 @@ void WaveformUI::mouseDown(const juce::MouseEvent& event)
 	lastMousePosition = pos;
 }
 
-void WaveformUI::mouseDrag(const juce::MouseEvent& event)
+void WaveformDisplay::mouseDrag(const juce::MouseEvent& event)
 {
 	if (onDraw == nullptr)
 	{ return; }
@@ -98,7 +98,7 @@ void WaveformUI::mouseDrag(const juce::MouseEvent& event)
 	lastMousePosition = pos;
 }
 
-bool WaveformUI::forceHorizontalBounds(juce::Point<int>& pos)
+bool WaveformDisplay::forceHorizontalBounds(juce::Point<int>& pos)
 {
 	auto forced = false;
 	const auto x = pos.getX();
@@ -115,7 +115,7 @@ bool WaveformUI::forceHorizontalBounds(juce::Point<int>& pos)
 	return forced;
 }
 
-void WaveformUI::forceVerticalBounds(juce::Point<int>& pos)
+void WaveformDisplay::forceVerticalBounds(juce::Point<int>& pos)
 {
 	const auto y = pos.getY();
 	if (y >= getHeight())
