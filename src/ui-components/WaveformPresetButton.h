@@ -17,6 +17,20 @@ public:
         bool shouldDrawButtonAsHighlighted,
         bool shouldDrawButtonAsDown) override;
 
+    void lookAndFeelChanged() override;
+    void resized() override;
+
 protected:
     const juce::Path& iconPath;
+
+private:
+    float borderWidth;
+    juce::Rectangle<int> bounds;
+    juce::Rectangle<int> outlineBounds;
+    float cornerRadius;
+    juce::Path border;
+    juce::Rectangle<float> iconBounds;
+    juce::AffineTransform iconOffset;
+
+    void preparePaint();
 };
