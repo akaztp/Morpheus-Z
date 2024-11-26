@@ -1,7 +1,8 @@
 #pragma once
 
 #include <juce_audio_utils/juce_audio_utils.h>
-#include "ui-components/WaveformDisplay.h"
+#include "MorpheusZProcessor.h"
+#include "ui-components/WaveformWidget.h"
 #include "Stylesheet.h"
 #include "StylesStore.h"
 
@@ -40,8 +41,8 @@ private:
 	juce::AudioThumbnailCache thumbnailCache{ numWaveforms };
 
 	juce::MidiKeyboardComponent keyboardComponent;
-	WaveformDisplay waveformDisplayA;
-	WaveformDisplay waveformDisplayB;
+	WaveformWidget waveformWithControlsUIA;
+	WaveformWidget waveformWithControlsUIB;
 
 	enum WaveformPosition
 	{
@@ -50,13 +51,13 @@ private:
 	};
 
 	void handleWaveformDraw(
-			const WaveformDisplay& waveform,
+			const WaveformWidget& waveform,
 			int waveformSize,
 			const juce::Point<int>& from,
 			const juce::Point<int>& to, // to.x is always equal or bigger than from.x
 			void (MorpheusZProcessor::*processorCallBack)(int, float));
 
-	void resizeWaveform(WaveformDisplay& waveformDisplay, int position);
+	void resizeWaveform(WaveformWidget& waveformWidget, int position);
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (MorpheusZEditor)
 };

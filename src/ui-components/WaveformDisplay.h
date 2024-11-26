@@ -2,10 +2,11 @@
 
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "../StylesStore.h"
+#include "StyledComponent.h"
 
 typedef std::function<void(const juce::Point<int>& from, const juce::Point<int>& to)> DrawCallback;
 
-class WaveformDisplay : public juce::Component, juce::ChangeListener
+class WaveformDisplay : public StyledComponent, juce::ChangeListener
 {
 public:
 	explicit WaveformDisplay(
@@ -30,7 +31,6 @@ private:
 	juce::AudioThumbnail thumbnail;
 	std::function<void(const juce::Point<int>& from, const juce::Point<int>& to)> onDraw;
 	juce::Point<int> lastMousePosition;
-	const StylesStore& stylesStore;
 
 	bool forceHorizontalBounds(juce::Point<int>& pos);
 

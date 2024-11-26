@@ -8,9 +8,7 @@ WaveformDisplay::WaveformDisplay(
 		juce::AudioThumbnailCache& thumbnailCache,
 		juce::AudioFormatManager& formatManager,
 		DrawCallback onDrawCallback)
-		: stylesStore(stylesStore),
-		  thumbnail(1, formatManager, thumbnailCache),
-		  onDraw(std::move(onDrawCallback))
+		: StyledComponent(stylesStore), thumbnail(1, formatManager, thumbnailCache), onDraw(std::move(onDrawCallback))
 {
 	thumbnail.addChangeListener(this);
 }

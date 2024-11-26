@@ -32,6 +32,9 @@ public:
 		LayoutGutter,
 		CornerRadius,
 		KeyboardHeight,
+		ButtonHeight,
+		ButtonWidth,
+		BorderWidth,
 
 		numIds
 	};

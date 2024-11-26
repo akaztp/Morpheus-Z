@@ -12,7 +12,7 @@ const std::map<StylesStore::ColorIds, juce::uint32> Stylesheet::styleColours =
 				{ StylesStore::ColorIds::DefaultText,           0xff060606 },
 				{ StylesStore::ColorIds::DefaultFill,           0xff95423D },
 				{ StylesStore::ColorIds::HighlightedText,       0xff060606 },
-				{ StylesStore::ColorIds::HighlightedFill,       0xff95423D },
+				{ StylesStore::ColorIds::HighlightedFill,       0xffC9817C },
 				{ StylesStore::ColorIds::MenuText,              0xff060606 },
 				{ StylesStore::ColorIds::WaveformDisplay_signal,     0xffFF97CE },
 				{ StylesStore::ColorIds::WaveformDisplay_zero,       0xff555555 },
@@ -23,6 +23,9 @@ const std::map<StylesStore::NumberIds, float> Stylesheet::styleNumbers =
 		{
 				{ StylesStore::NumberIds::LayoutMargin,   24.0f },
 				{ StylesStore::NumberIds::LayoutGutter,   3.0f },
-				{ StylesStore::NumberIds::CornerRadius,   2.0f },
+				{ StylesStore::NumberIds::CornerRadius,   1.0f },
 				{ StylesStore::NumberIds::KeyboardHeight, 54.0f },
+				{ StylesStore::NumberIds::ButtonHeight,   32.0f },
+				{ StylesStore::NumberIds::ButtonWidth,    32.0f },
+				{ StylesStore::NumberIds::BorderWidth,    2.0f },
 		};
