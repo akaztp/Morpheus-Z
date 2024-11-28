@@ -35,7 +35,7 @@ void WaveformWidget::resized()
 
     bottom.removeFromTop(layoutGutter);
 
-    const int buttonWidth = stylesStore.getNumber(StylesStore::NumberIds::ButtonWidth);
+    const int buttonWidth = stylesStore.getNumber(StylesStore::NumberIds::ButtonHeight);
     for (const auto& buttonInfo : presetButtonsConfig)
     {
         const auto buttonBounds = bottom.removeFromLeft(buttonWidth);

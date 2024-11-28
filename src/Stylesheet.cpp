@@ -26,6 +26,6 @@ const std::map<StylesStore::NumberIds, float> Stylesheet::styleNumbers =
 				{ StylesStore::NumberIds::CornerRadius,   1.0f },
 				{ StylesStore::NumberIds::KeyboardHeight, 54.0f },
 				{ StylesStore::NumberIds::ButtonHeight,   32.0f },
-				{ StylesStore::NumberIds::ButtonWidth,    32.0f },
+				{ StylesStore::NumberIds::ButtonWidth,    96.0f },
 				{ StylesStore::NumberIds::BorderWidth,    2.0f },
 		};
