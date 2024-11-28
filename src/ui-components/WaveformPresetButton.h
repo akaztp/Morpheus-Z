@@ -3,14 +3,14 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "StyledComponent.h"
 
-
 class WaveformPresetButton : public juce::Button, protected StyledComponent
 {
 public:
     WaveformPresetButton(
         const StylesStore& stylesStore,
         const juce::String& buttonName,
-        const juce::Path& iconPath);
+        const juce::Path& iconPath,
+        std::function<void()> onClickCallback);
 
     void paintButton(
         juce::Graphics& g,

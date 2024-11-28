@@ -41,8 +41,8 @@ private:
 	juce::AudioThumbnailCache thumbnailCache{ numWaveforms };
 
 	juce::MidiKeyboardComponent keyboardComponent;
-	WaveformWidget waveformWithControlsUIA;
-	WaveformWidget waveformWithControlsUIB;
+	WaveformWidget waveformWidgetA;
+	WaveformWidget waveformWidgetB;
 
 	enum WaveformPosition
 	{

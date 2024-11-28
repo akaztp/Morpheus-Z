@@ -4,11 +4,11 @@
 #include "../StylesStore.h"
 #include "StyledComponent.h"
 
-typedef std::function<void(const juce::Point<int>& from, const juce::Point<int>& to)> DrawCallback;
-
 class WaveformDisplay : public StyledComponent, juce::ChangeListener
 {
 public:
+	typedef std::function<void(const juce::Point<int>& from, const juce::Point<int>& to)> DrawCallback;
+
 	explicit WaveformDisplay(
 			const StylesStore& stylesStore,
 			juce::AudioThumbnailCache& thumbnailCache,

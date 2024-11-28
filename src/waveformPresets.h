@@ -8,5 +8,7 @@ namespace waveformPresets
 
 	std::unique_ptr<juce::AudioSampleBuffer> triangle(int waveformSize);
 
-	std::unique_ptr<juce::AudioSampleBuffer> sawToothFW(int waveformSize);
+	std::unique_ptr<juce::AudioSampleBuffer> square(int waveformSize);
+
+	std::unique_ptr<juce::AudioSampleBuffer> sawTooth(int waveformSize);
 };

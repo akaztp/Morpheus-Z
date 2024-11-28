@@ -33,7 +33,23 @@ namespace waveformPresets
 		return waveform;
 	}
 
-	std::unique_ptr<juce::AudioSampleBuffer> sawToothFW(int waveformSize)
+	std::unique_ptr<juce::AudioSampleBuffer> square(int waveformSize)
+	{
+		std::unique_ptr<juce::AudioSampleBuffer> waveform =
+				std::make_unique<juce::AudioSampleBuffer>(1, waveformSize);
+		int halfIndex = waveformSize / 2;
+		for (int i = 0; i < halfIndex; ++i)
+		{
+			waveform->setSample(0, i, 1.0f);
+		}
+		for (int i = halfIndex; i < waveformSize; ++i)
+		{
+			waveform->setSample(0, i, -1.0f);
+		}
+		return waveform;
+	}
+
+	std::unique_ptr<juce::AudioSampleBuffer> sawTooth(int waveformSize)
 	{
 		std::unique_ptr<juce::AudioSampleBuffer> waveform =
 				std::make_unique<juce::AudioSampleBuffer>(1, waveformSize);

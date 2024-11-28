@@ -7,14 +7,23 @@
 #include "WaveformPresetButton.h"
 #include "CustomSymbols.h"
 
+enum class WaveformPreset
+{
+    Sine = 0,
+    Square,
+    Triangle,
+    Sawtooth,
+};
 
 struct ButtonInfo
 {
     ButtonInfo(
+        const WaveformPreset preset,
         const juce::String& name,
         const unsigned char* iconData,
         const size_t iconDataSize)
-        : name(name),
+        : preset(preset),
+          name(name),
           iconData(iconData),
           iconDataSize(iconDataSize),
           button(nullptr),
@@ -22,6 +31,7 @@ struct ButtonInfo
     {
     }
 
+    const WaveformPreset preset;
     const juce::String name;
     const unsigned char* iconData;
     const size_t iconDataSize;
@@ -36,7 +46,8 @@ public:
         const StylesStore& stylesStore,
         juce::AudioThumbnailCache& thumbnailCache,
         juce::AudioFormatManager& formatManager,
-        DrawCallback onDrawCallback);
+        WaveformDisplay::DrawCallback onDrawCallback,
+        std::function<void(WaveformPreset preset)> onClickCallback);
 
     void resized() override;
 
@@ -48,11 +59,10 @@ public:
 
 protected:
     WaveformDisplay waveformDisplay;
-    ButtonInfo presetButtonsConfig[5] = {
-        ButtonInfo{"Sinewave", CustomSymbols::sinePathData, sizeof(CustomSymbols::sinePathData)},
-        ButtonInfo{"Square", CustomSymbols::squarePathData, sizeof(CustomSymbols::squarePathData)},
-        ButtonInfo{"Triangle", CustomSymbols::trianglePathData, sizeof(CustomSymbols::trianglePathData)},
-        ButtonInfo{"Sawtooth F", CustomSymbols::sawToothFWPathData, sizeof(CustomSymbols::sawToothFWPathData)},
-        ButtonInfo{"Sawtooth B", CustomSymbols::sawToothBWPathData, sizeof(CustomSymbols::sawToothBWPathData)}
+    ButtonInfo presetButtonsConfig[4] = {
+        ButtonInfo{WaveformPreset::Sine, "Sine", CustomSymbols::sinePathData, sizeof(CustomSymbols::sinePathData)},
+        ButtonInfo{WaveformPreset::Square, "Square", CustomSymbols::squarePathData, sizeof(CustomSymbols::squarePathData)},
+        ButtonInfo{WaveformPreset::Triangle, "Triangle", CustomSymbols::trianglePathData, sizeof(CustomSymbols::trianglePathData)},
+        ButtonInfo{WaveformPreset::Sawtooth, "Sawtooth", CustomSymbols::sawToothFWPathData, sizeof(CustomSymbols::sawToothFWPathData)},
     };
 };

@@ -1,10 +1,12 @@
 #include "WaveformWidget.h"
 
+
 WaveformWidget::WaveformWidget(
     const StylesStore& stylesStore,
     juce::AudioThumbnailCache& thumbnailCache,
     juce::AudioFormatManager& formatManager,
-    DrawCallback onDrawCallback)
+    WaveformDisplay::DrawCallback onDrawCallback,
+    std::function<void(WaveformPreset preset)> onClickCallback)
     : StyledComponent(stylesStore),
       waveformDisplay(stylesStore, thumbnailCache, formatManager, onDrawCallback)
 {
@@ -16,7 +18,8 @@ WaveformWidget::WaveformWidget(
         buttonInfo.button = std::make_unique<WaveformPresetButton>(
             stylesStore,
             buttonInfo.name,
-            *buttonInfo.path
+            *buttonInfo.path,
+            [onClickCallback, &buttonInfo] { onClickCallback(buttonInfo.preset); }
         );
         addAndMakeVisible(dynamic_cast<juce::Button*>(buttonInfo.button.get()));
     }

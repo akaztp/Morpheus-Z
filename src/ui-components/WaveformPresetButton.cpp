@@ -1,13 +1,17 @@
 #include "WaveformPresetButton.h"
 
+#include <utility>
+
 WaveformPresetButton::WaveformPresetButton(
     const StylesStore& stylesStore,
     const juce::String& buttonName,
-    const juce::Path& iconPath)
+    const juce::Path& iconPath,
+    std::function<void()> onClickCallback)
     : StyledComponent(stylesStore),
       juce::Button(buttonName),
       iconPath(iconPath)
 {
+    onClick = std::move(onClickCallback);
 }
 
 void WaveformPresetButton::paintButton(
@@ -15,6 +19,8 @@ void WaveformPresetButton::paintButton(
     bool shouldDrawButtonAsHighlighted,
     bool shouldDrawButtonAsDown)
 {
+    juce::ignoreUnused(shouldDrawButtonAsHighlighted);
+
     /* fill background */
     g.setColour(stylesStore.getColor(
         shouldDrawButtonAsDown
