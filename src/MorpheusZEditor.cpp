@@ -4,30 +4,30 @@
 #include "Stylesheet.h"
 #include "StylesStore.h"
 
-MorpheusZEditor::MorpheusZEditor(MorpheusZProcessor& p)
+MorpheusZEditor::MorpheusZEditor(MorpheusZProcessor& p, juce::AudioProcessorValueTreeState& apvts)
     : AudioProcessorEditor(&p),
       processorRef(p),
       keyboardComponent(processorRef.keyboardState, juce::MidiKeyboardComponent::horizontalKeyboard),
       waveformWidgetA(stylesStore, thumbnailCache, formatManager,
-                              [this](const juce::Point<int>& from, const juce::Point<int>& to)
-                              {
-                                  this->handleWaveformDraw(waveformWidgetA, waveformASize, from, to,
-                                                           &MorpheusZProcessor::setWaveformAValue);
-                              },
-                              [this](WaveformPreset preset)
-                              {
-                                  this->processorRef.setWaveformA(preset);
-                              }),
+                      [this](const juce::Point<int>& from, const juce::Point<int>& to)
+                      {
+                          this->handleWaveformDraw(waveformWidgetA, waveformASize, from, to,
+                                                   &MorpheusZProcessor::setWaveformAValue);
+                      },
+                      [this](WaveformPreset preset)
+                      {
+                          this->processorRef.setWaveformA(preset);
+                      }),
       waveformWidgetB(stylesStore, thumbnailCache, formatManager,
-                              [this](const juce::Point<int>& from, const juce::Point<int>& to)
-                              {
-                                  this->handleWaveformDraw(waveformWidgetB, waveformBSize, from, to,
-                                                           &MorpheusZProcessor::setWaveformBValue);
-                              },
-                              [this](WaveformPreset preset)
-                              {
-                                  this->processorRef.setWaveformB(preset);
-                              })
+                      [this](const juce::Point<int>& from, const juce::Point<int>& to)
+                      {
+                          this->handleWaveformDraw(waveformWidgetB, waveformBSize, from, to,
+                                                   &MorpheusZProcessor::setWaveformBValue);
+                      },
+                      [this](WaveformPreset preset)
+                      {
+                          this->processorRef.setWaveformB(preset);
+                      })
 {
     stylesStore.fillStore(
         Stylesheet::styleColours,
@@ -38,6 +38,15 @@ MorpheusZEditor::MorpheusZEditor(MorpheusZProcessor& p)
     addAndMakeVisible(keyboardComponent);
     addAndMakeVisible(waveformWidgetA);
     addAndMakeVisible(waveformWidgetB);
+
+    loopButton.setButtonText("Loop");
+    loopButtonAttachment.reset(
+        new juce::AudioProcessorValueTreeState::ButtonAttachment(
+            apvts,
+            AppParams::loopMode,
+            loopButton));
+    addAndMakeVisible(loopButton);
+
     setSize(600, 250);
 }
 
@@ -85,21 +94,24 @@ void MorpheusZEditor::resized()
         getHeight() - keyboardHeight,
         getWidth(),
         keyboardHeight);
-	resizeWaveform(waveformWidgetA, MorpheusZEditor::WaveformPosition::Left);
-	resizeWaveform(waveformWidgetB, MorpheusZEditor::WaveformPosition::Right);
-}
 
-void MorpheusZEditor::resizeWaveform(
-    WaveformWidget& waveformWithControlsUI,
-    int position)
-{
-    const int layoutMargin = stylesStore.getNumber(StylesStore::NumberIds::LayoutMargin);
-    const int layoutGutter = stylesStore.getNumber(StylesStore::NumberIds::LayoutGutter);
-    const int keyboardHeight = stylesStore.getNumber(StylesStore::NumberIds::KeyboardHeight);
-    const auto width = (getWidth() - layoutMargin * 2 - layoutGutter) / 2;
-    const auto left = layoutMargin + position * (width + layoutGutter);
-    const int height = getHeight() - keyboardHeight - 2 * layoutMargin;
-    waveformWithControlsUI.setBounds(left, layoutMargin, width, height);
+    const auto buttonWidth = stylesStore.getNumber(StylesStore::NumberIds::ButtonWidth);
+    const auto layoutMargin = stylesStore.getNumber(StylesStore::NumberIds::LayoutMargin);
+    const auto gutter = stylesStore.getNumber(StylesStore::NumberIds::LayoutGutter);
+    const auto middlePanelWidth = buttonWidth + 2 * gutter;
+    const auto waveformWidgetWidth = 0.5 * (getWidth() - middlePanelWidth - 2 * layoutMargin);
+    const auto waveformWidgetALeft = layoutMargin;
+    const auto middlePanelLeft = layoutMargin + waveformWidgetWidth;
+    const auto waveformWidgetBLeft = middlePanelLeft + middlePanelWidth;
+    const int waveformWidgetHeight = getHeight() - keyboardHeight - 2 * layoutMargin;
+
+    waveformWidgetA.setBounds(waveformWidgetALeft, layoutMargin, waveformWidgetWidth, waveformWidgetHeight);
+    waveformWidgetB.setBounds(waveformWidgetBLeft, layoutMargin, waveformWidgetWidth, waveformWidgetHeight);
+    loopButton.setBounds(
+        middlePanelLeft + gutter,
+        layoutMargin,
+        buttonWidth,
+        stylesStore.getNumber(StylesStore::NumberIds::ButtonHeight));
 }
 
 void MorpheusZEditor::setWaveformA(

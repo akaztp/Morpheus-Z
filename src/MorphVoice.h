@@ -1,12 +1,13 @@
 #pragma once
 
 #include "juce_audio_basics/juce_audio_basics.h"
+#include "juce_audio_processors/juce_audio_processors.h"
 #include "MorphSound.h"
 
 class MorphVoice : public juce::SynthesiserVoice
 {
 public:
-	MorphVoice() = default;
+	MorphVoice(juce::AudioProcessorValueTreeState& apvts);
 
 	bool canPlaySound(juce::SynthesiserSound* sound) override;
 
@@ -28,6 +29,10 @@ public:
 			int numSamples) override;
 
 private:
+	juce::AudioParameterBool* loopModeParam = nullptr;
+	juce::AudioParameterFloat* morphDurationParam = nullptr;
+
+
 	// current progress in ratio of the waveform from [0, 1[
 	double waveformPosition = 0.0;
 	// ratio of the waveform to progress on each sample output
@@ -43,8 +48,6 @@ private:
 	float level = 0.0f;
 	// absolute max level
 	float maxLevel = 0.25f;
-
-	double morphDuration = 2; // seconds
 
 	MorphSound* morphSound = nullptr;
 };

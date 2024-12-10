@@ -1,20 +1,27 @@
 #include "SynthAudioSource.h"
 
+#include "AppParams.h"
+#include "MorphVoice.h"
+
 // @formatter:off
-SynthAudioSource::SynthAudioSource(juce::MidiKeyboardState & a)
+SynthAudioSource::SynthAudioSource(
+    juce::MidiKeyboardState& a,
+    juce::AudioProcessorValueTreeState& apvts)
 		: keyboardState(a)
 {
-		for (auto i = 0; i < polyphony; ++i)
-		{
-			synth.addVoice(new MorphVoice());
-		}
-		synth.addSound(morphSound);
+    polyphonyParam = dynamic_cast<juce::AudioParameterInt*>(
+        apvts.getParameter(AppParams::polyphony));
+	for (auto i = 0; i < polyphonyParam->get(); ++i)
+	{
+		synth.addVoice(new MorphVoice(apvts));
+	}
+	synth.addSound(morphSound);
 }
 // @formatter:on
 
 void SynthAudioSource::prepareToPlay(int /*samplesPerBlockExpected*/, double sampleRate)
 {
-	synth.setCurrentPlaybackSampleRate(sampleRate);
+    synth.setCurrentPlaybackSampleRate(sampleRate);
 }
 
 void SynthAudioSource::releaseResources()
@@ -23,35 +30,35 @@ void SynthAudioSource::releaseResources()
 
 void SynthAudioSource::setWaveA(juce::AudioSampleBuffer& waveform)
 {
-	morphSound->setWaveA(waveform);
+    morphSound->setWaveA(waveform);
 }
 
 void SynthAudioSource::setWaveB(juce::AudioSampleBuffer& waveform)
 {
-	morphSound->setWaveB(waveform);
+    morphSound->setWaveB(waveform);
 }
 
 void SynthAudioSource::getNextAudioBlock(
-		const juce::AudioSourceChannelInfo& bufferToFill)
+    const juce::AudioSourceChannelInfo& bufferToFill)
 {
-	juce::MidiBuffer emptyMidiBuffer;
-	getNextAudioBlock(bufferToFill, emptyMidiBuffer);
+    juce::MidiBuffer emptyMidiBuffer;
+    getNextAudioBlock(bufferToFill, emptyMidiBuffer);
 }
 
 void SynthAudioSource::getNextAudioBlock(
-		const juce::AudioSourceChannelInfo& bufferToFill,
-		juce::MidiBuffer& midiMessages)
+    const juce::AudioSourceChannelInfo& bufferToFill,
+    juce::MidiBuffer& midiMessages)
 {
-	bufferToFill.clearActiveBufferRegion();
+    bufferToFill.clearActiveBufferRegion();
 
-	keyboardState.processNextMidiBuffer(
-			midiMessages,
-			bufferToFill.startSample,
-			bufferToFill.numSamples,
-			true);
-	synth.renderNextBlock(
-			*bufferToFill.buffer,
-			midiMessages,
-			bufferToFill.startSample,
-			bufferToFill.numSamples);
+    keyboardState.processNextMidiBuffer(
+        midiMessages,
+        bufferToFill.startSample,
+        bufferToFill.numSamples,
+        true);
+    synth.renderNextBlock(
+        *bufferToFill.buffer,
+        midiMessages,
+        bufferToFill.startSample,
+        bufferToFill.numSamples);
 }

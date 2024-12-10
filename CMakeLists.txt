@@ -72,31 +72,37 @@ juce_add_plugin(Morpheus-Z
 
 target_sources(Morpheus-Z
         PRIVATE
-        src/Stylesheet.h
-        src/Stylesheet.cpp
-        src/StylesStore.h
-        src/StylesStore.cpp
+        src/ui-components/ButtonFrame.h
+        src/ui-components/ButtonFrame.cpp
+        src/ui-components/CustomSymbols.h
         src/ui-components/StyledComponent.h
         src/ui-components/StyledComponent.cpp
-        src/ui-components/CustomSymbols.h
-        src/ui-components/WaveformWidget.h
-        src/ui-components/WaveformWidget.cpp
+        src/ui-components/SwitchButton.h
+        src/ui-components/SwitchButton.cpp
         src/ui-components/WaveformDisplay.h
         src/ui-components/WaveformDisplay.cpp
         src/ui-components/WaveformPresetButton.h
         src/ui-components/WaveformPresetButton.cpp
-        src/waveformPresets.h
-        src/waveformPresets.cpp
-        src/MorphSound.h
-        src/MorphSound.cpp
-        src/MorphVoice.h
-        src/MorphVoice.cpp
-        src/SynthAudioSource.h
-        src/SynthAudioSource.cpp
+        src/ui-components/WaveformWidget.h
+        src/ui-components/WaveformWidget.cpp
+        src/AppParams.h
+        src/AppParams.cpp
         src/MorpheusZEditor.h
         src/MorpheusZEditor.cpp
         src/MorpheusZProcessor.h
         src/MorpheusZProcessor.cpp
+        src/MorphSound.h
+        src/MorphSound.cpp
+        src/MorphVoice.h
+        src/MorphVoice.cpp
+        src/Stylesheet.h
+        src/Stylesheet.cpp
+        src/StylesStore.h
+        src/StylesStore.cpp
+        src/SynthAudioSource.h
+        src/SynthAudioSource.cpp
+        src/waveformPresets.cpp
+        src/waveformPresets.h
 )
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer

@@ -11,7 +11,7 @@ MorpheusZProcessor::MorpheusZProcessor()
 #endif
           .withOutput("Output", juce::AudioChannelSet::stereo(), true)
 #endif
-      ), synthAudioSource(keyboardState)
+      ), synthAudioSource(keyboardState, apvts)
 {
 }
 
@@ -93,36 +93,38 @@ void MorpheusZProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
     setWaveformB(WaveformPreset::Triangle);
 }
 
-std::unique_ptr<juce::AudioSampleBuffer> MorpheusZProcessor::getWaveform(WaveformPreset preset) const
+std::unique_ptr<juce::AudioSampleBuffer> MorpheusZProcessor::getWaveformPreset(
+    WaveformPreset preset,
+    int size) const
 {
     switch (preset)
     {
     case WaveformPreset::Sine:
-        return waveformPresets::sine(waveformSize);
+        return waveformPresets::sine(size);
     case WaveformPreset::Square:
-        return waveformPresets::square(waveformSize);
+        return waveformPresets::square(size);
     case WaveformPreset::Triangle:
-        return waveformPresets::triangle(waveformSize);
+        return waveformPresets::triangle(size);
     case WaveformPreset::Sawtooth:
-        return waveformPresets::sawTooth(waveformSize);
+        return waveformPresets::sawTooth(size);
     }
     DBG(juce::String::formatted("An invalid preset wave was selected: %i", preset));
     jassertfalse;
-    return waveformPresets::sine(waveformSize);
+    return waveformPresets::sine(size);
 }
 
 void MorpheusZProcessor::setWaveformA(const WaveformPreset preset)
 {
-    const std::unique_ptr<juce::AudioSampleBuffer> wave = getWaveform(preset);
-    waveformA.copyFrom(0, 0, *wave, 0, 0, waveformSize);
+    const std::unique_ptr<juce::AudioSampleBuffer> wave = getWaveformPreset(preset, waveformSize);
+    waveformA.copyFrom(0, 0, *wave, 0, 0, wave->getNumSamples());
     synthAudioSource.setWaveA(waveformA);
     refreshWaveformAEditor();
 }
 
 void MorpheusZProcessor::setWaveformB(const WaveformPreset preset)
 {
-    const std::unique_ptr<juce::AudioSampleBuffer> wave = getWaveform(preset);
-    waveformB.copyFrom(0, 0, *wave, 0, 0, waveformSize);
+    const std::unique_ptr<juce::AudioSampleBuffer> wave = getWaveformPreset(preset, waveformSize);
+    waveformB.copyFrom(0, 0, *wave, 0, 0, wave->getNumSamples());
     synthAudioSource.setWaveB(waveformB);
     refreshWaveformBEditor();
 }
@@ -174,7 +176,7 @@ bool MorpheusZProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* MorpheusZProcessor::createEditor()
 {
-    auto editor = new MorpheusZEditor(*this);
+    auto editor = new MorpheusZEditor(*this, apvts);
     const auto sampleRate = getSampleRate();
     editor->setWaveformA(waveformA, sampleRate);
     editor->setWaveformB(waveformB, sampleRate);

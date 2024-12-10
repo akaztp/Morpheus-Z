@@ -1,7 +1,7 @@
 #pragma once
 
 #include <juce_gui_basics/juce_gui_basics.h>
-#include "StyledComponent.h"
+#include "ButtonFrame.h"
 
 class WaveformPresetButton : public juce::Button, protected StyledComponent
 {
@@ -20,15 +20,11 @@ public:
     void lookAndFeelChanged() override;
     void resized() override;
 
-protected:
-    const juce::Path& iconPath;
-
 private:
-    float borderWidth;
+    const juce::Path& iconPath;
+    ButtonFrame buttonFrame;
+
     juce::Rectangle<int> bounds;
-    juce::Rectangle<int> outlineBounds;
-    float cornerRadius;
-    juce::Path border;
     juce::Rectangle<float> iconBounds;
     juce::AffineTransform iconOffset;
 

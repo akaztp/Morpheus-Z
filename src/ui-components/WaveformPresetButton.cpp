@@ -7,8 +7,9 @@ WaveformPresetButton::WaveformPresetButton(
     const juce::String& buttonName,
     const juce::Path& iconPath,
     std::function<void()> onClickCallback)
-    : StyledComponent(stylesStore),
-      juce::Button(buttonName),
+    : juce::Button(buttonName),
+      StyledComponent(stylesStore),
+      buttonFrame(stylesStore, *this),
       iconPath(iconPath)
 {
     onClick = std::move(onClickCallback);
@@ -16,21 +17,10 @@ WaveformPresetButton::WaveformPresetButton(
 
 void WaveformPresetButton::paintButton(
     juce::Graphics& g,
-    bool shouldDrawButtonAsHighlighted,
-    bool shouldDrawButtonAsDown)
+    const bool shouldDrawButtonAsHighlighted,
+    const bool shouldDrawButtonAsDown)
 {
-    juce::ignoreUnused(shouldDrawButtonAsHighlighted);
-
-    /* fill background */
-    g.setColour(stylesStore.getColor(
-        shouldDrawButtonAsDown
-            ? StylesStore::ColorIds::HighlightedFill
-            : StylesStore::ColorIds::WidgetBackground));
-    g.fillRect(outlineBounds.reduced(borderWidth * 0.5f));
-
-    /* draw border */
-    g.setColour(stylesStore.getColor(StylesStore::ColorIds::Outline));
-    g.strokePath(border, juce::PathStrokeType(borderWidth));
+    buttonFrame.paint(g, shouldDrawButtonAsHighlighted, shouldDrawButtonAsDown);
 
     /* draw icon */
     g.setColour(stylesStore.getColor(StylesStore::ColorIds::DefaultText));
@@ -39,25 +29,21 @@ void WaveformPresetButton::paintButton(
 
 void WaveformPresetButton::lookAndFeelChanged()
 {
+    Button::lookAndFeelChanged();
     preparePaint();
 }
 
 void WaveformPresetButton::resized()
 {
+    Button::resized();
     preparePaint();
 }
 
+
 void WaveformPresetButton::preparePaint()
 {
-    borderWidth = stylesStore.getNumber(StylesStore::NumberIds::BorderWidth);
-    bounds = juce::Button::getLocalBounds();
-    outlineBounds = bounds.reduced(borderWidth * 0.5f);
-
-    cornerRadius =
-        stylesStore.getNumber(StylesStore::NumberIds::CornerRadius);
-    border = juce::Path();
-    border.addRoundedRectangle(outlineBounds, 2 * cornerRadius);
-
+    buttonFrame.preparePaint();
+    bounds = getLocalBounds();
     iconBounds = iconPath.getBounds();
     iconOffset = juce::AffineTransform::translation(
         0.5f * (bounds.getWidth() - iconBounds.getWidth()) - iconBounds.getX(),

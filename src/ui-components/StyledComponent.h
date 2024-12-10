@@ -1,9 +1,8 @@
 #pragma once
 
-#include <juce_gui_basics/juce_gui_basics.h>
 #include "../StylesStore.h"
 
-class StyledComponent : public juce::Component
+class StyledComponent
 {
 public:
 	explicit StyledComponent(const StylesStore& stylesStore);

@@ -19,6 +19,7 @@ public:
 		HighlightedFill,
 		MenuText,
 
+		SelectedFill,
 		WaveformDisplay_signal,
 		WaveformDisplay_zero,
 		WaveformDisplay_background,

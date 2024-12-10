@@ -1,6 +1,8 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
+
+#include "AppParams.h"
 #include "SynthAudioSource.h"
 #include "MorpheusZEditor.h"
 
@@ -65,12 +67,20 @@ public:
     void setWaveformBValue(int index, float value);
 
 private:
+    juce::AudioProcessorValueTreeState apvts{
+        *this,
+        nullptr,
+        "AppParams",
+        AppParams::createParameterLayout()
+    };
     int waveformSize = 512;
     juce::AudioSampleBuffer waveformA{1, waveformSize};
     juce::AudioSampleBuffer waveformB{1, waveformSize};
     SynthAudioSource synthAudioSource;
 
-    std::unique_ptr<juce::AudioSampleBuffer> getWaveform(WaveformPreset preset) const;
+    std::unique_ptr<juce::AudioSampleBuffer> getWaveformPreset(
+        WaveformPreset preset,
+        int size) const;
     void refreshWaveformAEditor() const;
     void refreshWaveformBEditor() const;
 

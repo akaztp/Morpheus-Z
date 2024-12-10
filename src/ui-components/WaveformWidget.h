@@ -39,7 +39,7 @@ struct ButtonInfo
     std::unique_ptr<juce::Path> path;
 };
 
-class WaveformWidget : public StyledComponent
+class WaveformWidget : public StyledComponent, public juce::Component
 {
 public:
     explicit WaveformWidget(
