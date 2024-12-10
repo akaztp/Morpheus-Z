@@ -28,7 +28,6 @@ private:
         static constexpr const auto waveformA = "WaveformA";
         static constexpr const auto waveformB = "WaveformB";
     };
-    static constexpr auto binaryAttrName = "data";
 
     static std::unique_ptr<juce::XmlElement> getWaveformXml(
         const juce::String& name,

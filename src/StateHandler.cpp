@@ -33,7 +33,7 @@ std::unique_ptr<juce::XmlElement> StateHandler::getWaveformXml(
     auto waveformEncoded = waveformBlock.toBase64Encoding();
 
     auto waveformXml = std::make_unique<juce::XmlElement>(name);
-    waveformXml->setAttribute(binaryAttrName, waveformEncoded);
+    waveformXml->addTextElement(waveformEncoded);
     return waveformXml;
 }
 
@@ -77,7 +77,12 @@ void StateHandler::setWaveformFromXml(
     }
 
     juce::MemoryBlock waveformBlock;
-    waveformBlock.fromBase64Encoding(waveformXml->getStringAttribute(binaryAttrName));
+    auto success = waveformBlock.fromBase64Encoding(waveformXml->getAllSubText());
+    if (!success)
+    {
+        DBG("Failed to decode waveform base64 data for waveform: " << name);
+        return;
+    }
     const int numSamples = waveformBlock.getSize() / sizeof(float);
     waveform.setSize(1, numSamples);
     float* writePointer = waveform.getWritePointer(0);
