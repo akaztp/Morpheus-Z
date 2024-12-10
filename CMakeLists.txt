@@ -95,6 +95,8 @@ target_sources(Morpheus-Z
         src/MorphSound.cpp
         src/MorphVoice.h
         src/MorphVoice.cpp
+        src/StateHandler.h
+        src/StateHandler.cpp
         src/Stylesheet.h
         src/Stylesheet.cpp
         src/StylesStore.h

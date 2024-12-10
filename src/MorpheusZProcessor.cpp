@@ -1,5 +1,6 @@
 #include "MorpheusZProcessor.h"
 #include "MorpheusZEditor.h"
+#include "StateHandler.h"
 #include "waveformPresets.h"
 
 //==============================================================================
@@ -186,17 +187,14 @@ juce::AudioProcessorEditor* MorpheusZProcessor::createEditor()
 //==============================================================================
 void MorpheusZProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
-    // You should use this method to store your parameters in the memory block.
-    // You could do that either as raw data, or use the XML or ValueTree classes
-    // as intermediaries to make it easy to save and load complex data.
-    juce::ignoreUnused(destData);
+    StateHandler::getStateInformation(destData, waveformA, waveformB, apvts);
 }
 
 void MorpheusZProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
-    // You should use this method to restore your parameters from this memory block,
-    // whose contents will have been created by the getStateInformation() call.
-    juce::ignoreUnused(data, sizeInBytes);
+    StateHandler::setStateInformation(data, sizeInBytes, waveformA, waveformB, apvts);
+    refreshWaveformAEditor();
+    refreshWaveformBEditor();
 }
 
 void MorpheusZProcessor::setWaveformAValue(int index, float value)
