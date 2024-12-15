@@ -75,18 +75,24 @@ target_sources(Morpheus-Z
         src/ui-components/ButtonFrame.h
         src/ui-components/ButtonFrame.cpp
         src/ui-components/CustomSymbols.h
+        src/ui-components/FramedButton.h
+        src/ui-components/FramedButton.cpp
         src/ui-components/StyledComponent.h
         src/ui-components/StyledComponent.cpp
         src/ui-components/SwitchButton.h
         src/ui-components/SwitchButton.cpp
+        src/ui-components/WaveformBackground.h
+        src/ui-components/WaveformBackground.cpp
         src/ui-components/WaveformDisplay.h
         src/ui-components/WaveformDisplay.cpp
-        src/ui-components/WaveformPresetButton.h
-        src/ui-components/WaveformPresetButton.cpp
+        src/ui-components/WaveformInput.h
+        src/ui-components/WaveformInput.cpp
         src/ui-components/WaveformWidget.h
         src/ui-components/WaveformWidget.cpp
         src/AppParams.h
         src/AppParams.cpp
+        src/BinaryData.h
+        src/BinaryData.cpp
         src/MorpheusZEditor.h
         src/MorpheusZEditor.cpp
         src/MorpheusZProcessor.h

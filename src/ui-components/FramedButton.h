@@ -3,30 +3,32 @@
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "ButtonFrame.h"
 
-class WaveformPresetButton : public juce::Button, protected StyledComponent
+class FramedButton : public juce::Button, protected StyledComponent
 {
 public:
-    WaveformPresetButton(
+    FramedButton(
         const StylesStore& stylesStore,
         const juce::String& buttonName,
-        const juce::Path& iconPath,
+        const juce::Path* iconPath,
         std::function<void()> onClickCallback);
 
+    void lookAndFeelChanged() override;
+    void resized() override;
+
+protected:
     void paintButton(
         juce::Graphics& g,
         bool shouldDrawButtonAsHighlighted,
         bool shouldDrawButtonAsDown) override;
 
-    void lookAndFeelChanged() override;
-    void resized() override;
-
 private:
-    const juce::Path& iconPath;
     ButtonFrame buttonFrame;
+    const juce::Path* iconPath = nullptr;
 
     juce::Rectangle<int> bounds;
     juce::Rectangle<float> iconBounds;
     juce::AffineTransform iconOffset;
+    float fontSize = 0.0f;
 
     void preparePaint();
 };

@@ -1,12 +1,9 @@
 #pragma once
 
 #include <juce_audio_utils/juce_audio_utils.h>
-
 #include "ui-components/WaveformWidget.h"
 #include "Stylesheet.h"
 #include "StylesStore.h"
-#include "ui-components/SwitchButton.h"
-
 
 class MorpheusZProcessor;
 
@@ -22,14 +19,11 @@ public:
 
     void resized() override;
 
-    void setWaveformA(const juce::AudioSampleBuffer& waveform, double sampleRate);
-
-    void setWaveformB(const juce::AudioSampleBuffer& waveform, double sampleRate);
+    void setWaveform(int waveformNum, const juce::AudioSampleBuffer& waveform, double sampleRate);
 
 private:
-    const int numWaveforms = 2;
-    int waveformASize = 0;
-    int waveformBSize = 0;
+    static constexpr int numWaveforms = 2;
+    int waveformSizes[numWaveforms] = {0, 0};
 
     juce::LookAndFeel_V4 lookAndFeel;
     StylesStore stylesStore;
@@ -41,18 +35,25 @@ private:
     juce::AudioFormatManager formatManager;
     juce::AudioThumbnailCache thumbnailCache{numWaveforms};
 
-    juce::MidiKeyboardComponent keyboardComponent;
-    WaveformWidget waveformWidgetA;
-    WaveformWidget waveformWidgetB;
-    SwitchButton loopButton{stylesStore};
-    std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> loopButtonAttachment;
+    std::unique_ptr<juce::Image> backgroundImage;
+    const juce::AffineTransform backgroundImageHalved = juce::AffineTransform::scale(0.5f, 0.5f);
+
+    std::unique_ptr<juce::MidiKeyboardComponent> keyboardComponent;
+    std::unique_ptr<WaveformWidget> waveformWidget;
+
+    void initStylesStore();
+    void initBinaries();
+    void initKeyboardComponent(juce::MidiKeyboardState& keyboardState);
+    void initWaveformWidget(juce::AudioProcessorValueTreeState&);
+    void initSize();
 
     void handleWaveformDraw(
-        const WaveformWidget& waveform,
-        int waveformSize,
+        int waveformNum,
+        WaveformWidget* waveform,
         const juce::Point<int>& from,
         const juce::Point<int>& to, // to.x is always equal or bigger than from.x
-        void (MorpheusZProcessor::*processorCallBack)(int, float));
+        void (MorpheusZProcessor::*processorCallBack)(int, int, float)) const;
+    juce::Rectangle<int> calculateWaveformWidgetBounds() const;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MorpheusZEditor)
 };

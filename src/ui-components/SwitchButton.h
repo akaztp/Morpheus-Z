@@ -2,20 +2,14 @@
 
 #include <juce_gui_basics/juce_gui_basics.h>
 #include "ButtonFrame.h"
+#include "FramedButton.h"
 
-class SwitchButton : public juce::ToggleButton
+class SwitchButton : public FramedButton
 {
 public:
-    explicit SwitchButton(const StylesStore& stylesStore);
-
-    void lookAndFeelChanged() override;
-    void resized() override;
-
-protected:
-    ButtonFrame buttonFrame;
-
-    void paintButton(
-        juce::Graphics& g,
-        bool shouldDrawButtonAsHighlighted,
-        bool shouldDrawButtonAsDown) override;
+    SwitchButton(
+    const StylesStore& stylesStore,
+    const juce::String& buttonName,
+    const juce::Path* iconPath,
+    std::function<void()> onClickCallback);
 };

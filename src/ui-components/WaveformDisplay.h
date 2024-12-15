@@ -4,35 +4,32 @@
 #include "../StylesStore.h"
 #include "StyledComponent.h"
 
-class WaveformDisplay : public StyledComponent, public juce::Component, juce::ChangeListener
+class WaveformDisplay :
+    public StyledComponent,
+    public juce::Component,
+    juce::ChangeListener
 {
 public:
-	typedef std::function<void(const juce::Point<int>& from, const juce::Point<int>& to)> DrawCallback;
+    WaveformDisplay(
+        const StylesStore& stylesStore,
+        juce::AudioThumbnailCache& thumbnailCache,
+        juce::AudioFormatManager& formatManager);
 
-	explicit WaveformDisplay(
-			const StylesStore& stylesStore,
-			juce::AudioThumbnailCache& thumbnailCache,
-			juce::AudioFormatManager& formatManager,
-			DrawCallback onDrawCallback);
+    ~WaveformDisplay() override;
 
-	~WaveformDisplay() override;
+    void paint(juce::Graphics&) override;
 
-	void paint(juce::Graphics&) override;
+    void setSource(const juce::AudioBuffer<float>& newSource, double sampleRate, juce::int64 hashCode);
 
-	void mouseDown(const juce::MouseEvent& event) override;
+    void changeListenerCallback(juce::ChangeBroadcaster* source) override;
 
-	void mouseDrag(const juce::MouseEvent& event) override;
-
-	void setSource(const juce::AudioBuffer<float>& newSource, double sampleRate, juce::int64 hashCode);
-
-	void changeListenerCallback(juce::ChangeBroadcaster* source) override;
+    void setWaveFormColorId(const StylesStore::ColorIds colorId)
+    {
+        waveformColorId = colorId;
+        repaint();
+    }
 
 private:
-	juce::AudioThumbnail thumbnail;
-	std::function<void(const juce::Point<int>& from, const juce::Point<int>& to)> onDraw;
-	juce::Point<int> lastMousePosition;
-
-	bool forceHorizontalBounds(juce::Point<int>& pos);
-
-	void forceVerticalBounds(juce::Point<int>& pos);
+    StylesStore::ColorIds waveformColorId;
+    juce::AudioThumbnail thumbnail;
 };

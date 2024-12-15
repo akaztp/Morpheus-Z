@@ -60,11 +60,9 @@ public:
 
     juce::MidiKeyboardState keyboardState;
 
-    void setWaveformA(WaveformPreset preset);
-    void setWaveformB(WaveformPreset preset);
+    void setWaveform(int waveformNum, WaveformPreset preset);
 
-    void setWaveformAValue(int index, float value);
-    void setWaveformBValue(int index, float value);
+    void setWaveformValue(int waveformNum, int index, float value);
 
 private:
     juce::AudioProcessorValueTreeState apvts{
@@ -74,15 +72,17 @@ private:
         AppParams::createParameterLayout()
     };
     int waveformSize = 512;
-    juce::AudioSampleBuffer waveformA{1, waveformSize};
-    juce::AudioSampleBuffer waveformB{1, waveformSize};
+    static constexpr int numWaveforms = 2;
+    juce::AudioSampleBuffer waveforms[numWaveforms] = {
+        {1, waveformSize},
+        {1, waveformSize}
+    };
     SynthAudioSource synthAudioSource;
 
     std::unique_ptr<juce::AudioSampleBuffer> getWaveformPreset(
         WaveformPreset preset,
         int size) const;
-    void refreshWaveformAEditor() const;
-    void refreshWaveformBEditor() const;
+    void refreshWaveformEditor(int waveformNum) const;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MorpheusZProcessor)
 };

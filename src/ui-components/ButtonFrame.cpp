@@ -27,7 +27,7 @@ void ButtonFrame::paint(
     g.setColour(stylesStore.getColor(
         down
             ? StylesStore::ColorIds::HighlightedFill
-            : (selected ? StylesStore::ColorIds::SelectedFill : StylesStore::ColorIds::WidgetBackground)));
+            : (selected ? StylesStore::ColorIds::SelectedFill : StylesStore::ColorIds::DefaultFill)));
     g.fillRect(outlineBounds.reduced(borderWidth * 0.5f));
 
     /* draw border */

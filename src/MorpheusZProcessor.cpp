@@ -90,8 +90,8 @@ void MorpheusZProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     synthAudioSource.prepareToPlay(samplesPerBlock, sampleRate);
 
-    setWaveformA(WaveformPreset::Sine);
-    setWaveformB(WaveformPreset::Triangle);
+    setWaveform(0, WaveformPreset::Sine);
+    setWaveform(1, WaveformPreset::Triangle);
 }
 
 std::unique_ptr<juce::AudioSampleBuffer> MorpheusZProcessor::getWaveformPreset(
@@ -114,20 +114,22 @@ std::unique_ptr<juce::AudioSampleBuffer> MorpheusZProcessor::getWaveformPreset(
     return waveformPresets::sine(size);
 }
 
-void MorpheusZProcessor::setWaveformA(const WaveformPreset preset)
+void MorpheusZProcessor::setWaveform(int waveformNum, const WaveformPreset preset)
 {
     const std::unique_ptr<juce::AudioSampleBuffer> wave = getWaveformPreset(preset, waveformSize);
-    waveformA.copyFrom(0, 0, *wave, 0, 0, wave->getNumSamples());
-    synthAudioSource.setWaveA(waveformA);
-    refreshWaveformAEditor();
-}
-
-void MorpheusZProcessor::setWaveformB(const WaveformPreset preset)
-{
-    const std::unique_ptr<juce::AudioSampleBuffer> wave = getWaveformPreset(preset, waveformSize);
-    waveformB.copyFrom(0, 0, *wave, 0, 0, wave->getNumSamples());
-    synthAudioSource.setWaveB(waveformB);
-    refreshWaveformBEditor();
+    waveforms[waveformNum].copyFrom(0, 0, *wave, 0, 0, wave->getNumSamples());
+    switch (waveformNum)
+    {
+    case 0:
+        synthAudioSource.setWaveA(waveforms[waveformNum]);
+        break;
+    case 1:
+        synthAudioSource.setWaveB(waveforms[waveformNum]);
+        break;
+    default:
+        DBG("wrong waveform number: " << waveformNum);
+    }
+    refreshWaveformEditor(waveformNum);
 }
 
 void MorpheusZProcessor::releaseResources()
@@ -179,53 +181,54 @@ juce::AudioProcessorEditor* MorpheusZProcessor::createEditor()
 {
     auto editor = new MorpheusZEditor(*this, apvts);
     const auto sampleRate = getSampleRate();
-    editor->setWaveformA(waveformA, sampleRate);
-    editor->setWaveformB(waveformB, sampleRate);
+    for (auto i = 0; i < numWaveforms; ++i)
+    {
+        editor->setWaveform(i, waveforms[i], sampleRate);
+    }
     return editor;
 }
 
 //==============================================================================
 void MorpheusZProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
-    StateHandler::getStateInformation(destData, waveformA, waveformB, apvts);
+    StateHandler::getStateInformation(destData, waveforms[0], waveforms[1], apvts);
 }
 
 void MorpheusZProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
-    StateHandler::setStateInformation(data, sizeInBytes, waveformA, waveformB, apvts);
-    refreshWaveformAEditor();
-    refreshWaveformBEditor();
-}
-
-void MorpheusZProcessor::setWaveformAValue(int index, float value)
-{
-    waveformA.setSample(0, index, value);
-    synthAudioSource.setWaveA(waveformA);
-    refreshWaveformAEditor();
-}
-
-void MorpheusZProcessor::setWaveformBValue(int index, float value)
-{
-    waveformB.setSample(0, index, value);
-    synthAudioSource.setWaveB(waveformB);
-    refreshWaveformBEditor();
-}
-
-void MorpheusZProcessor::refreshWaveformAEditor() const
-{
-    auto editor = dynamic_cast<MorpheusZEditor*>(getActiveEditor());
-    if (editor != nullptr)
+    StateHandler::setStateInformation(data, sizeInBytes, waveforms[0], waveforms[1], apvts);
+    for (auto i = 0; i < numWaveforms; ++i)
     {
-        editor->setWaveformA(waveformA, getSampleRate());
+        refreshWaveformEditor(i);
     }
 }
 
-void MorpheusZProcessor::refreshWaveformBEditor() const
+void MorpheusZProcessor::setWaveformValue(
+    const int waveformNum,
+    const int index,
+    const float value)
+{
+    waveforms[waveformNum].setSample(0, index, value);
+    switch (waveformNum)
+    {
+    case 0:
+        synthAudioSource.setWaveA(waveforms[0]);
+        break;
+    case 1:
+        synthAudioSource.setWaveB(waveforms[1]);
+        break;
+    default:
+        DBG("wrong waveform number: " << waveformNum);
+    }
+    refreshWaveformEditor(waveformNum);
+}
+
+void MorpheusZProcessor::refreshWaveformEditor(const int waveformNum) const
 {
     auto editor = dynamic_cast<MorpheusZEditor*>(getActiveEditor());
     if (editor != nullptr)
     {
-        editor->setWaveformB(waveformB, getSampleRate());
+        editor->setWaveform(waveformNum, waveforms[waveformNum], getSampleRate());
     }
 }
 
