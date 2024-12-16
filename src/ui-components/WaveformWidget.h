@@ -31,7 +31,7 @@ struct ButtonInfo
           iconData(iconData),
           iconDataSize(iconDataSize),
           button(nullptr),
-          path(nullptr)
+          icon(nullptr)
     {
     }
 
@@ -40,7 +40,7 @@ struct ButtonInfo
     const unsigned char* iconData;
     const size_t iconDataSize;
     std::unique_ptr<FramedButton> button;
-    std::unique_ptr<juce::Path> path;
+    std::unique_ptr<juce::Path> icon;
 };
 
 class WaveformWidget : public StyledComponent, public juce::Component

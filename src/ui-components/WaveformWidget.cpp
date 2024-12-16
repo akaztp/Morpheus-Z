@@ -61,13 +61,13 @@ void WaveformWidget::initPresetButtons(PresetCallback onPresetCallback)
     for (int i = sizeof(presetButtonsConfig) / sizeof(ButtonInfo) - 1; i >= 0; i--)
     {
         auto& buttonInfo = presetButtonsConfig[i];
-        buttonInfo.path = CustomSymbols::createPathFromData(
+        buttonInfo.icon = CustomSymbols::createPathFromData(
             buttonInfo.iconData,
             buttonInfo.iconDataSize);
         buttonInfo.button = std::make_unique<FramedButton>(
             stylesStore,
             buttonInfo.name,
-            buttonInfo.path.get(),
+            buttonInfo.icon.get(),
             [onPresetCallback, &buttonInfo, this]
             {
                 onPresetCallback(buttonInfo.preset, this->selectedWaveform);
