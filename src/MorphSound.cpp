@@ -1,41 +1,36 @@
 #include "MorphSound.h"
 
-void MorphSound::setWaveA(juce::AudioSampleBuffer& waveform)
+void MorphSound::setWave(const int waveformNum, juce::AudioSampleBuffer& waveform)
 {
-	delete waveformA;
-	waveformASize = waveform.getNumSamples();
-	waveformA = wrapWaveform(waveform);
-}
-
-void MorphSound::setWaveB(juce::AudioSampleBuffer& waveform)
-{
-	delete waveformB;
-	waveformBSize = waveform.getNumSamples();
-	waveformB = wrapWaveform(waveform);
+    delete waveforms[waveformNum];
+    waveformSizes[waveformNum] = waveform.getNumSamples();
+    waveforms[waveformNum] = wrapWaveform(waveform);
 }
 
 bool MorphSound::appliesToNote(int)
 {
-	return true;
+    return true;
 }
 
 bool MorphSound::appliesToChannel(int)
 {
-	return true;
+    return true;
 }
 
 MorphSound::~MorphSound()
 {
-	delete waveformA;
-	delete waveformB;
+    for (auto const waveform : waveforms)
+    {
+        delete waveform;
+    }
 }
 
 juce::AudioSampleBuffer* MorphSound::wrapWaveform(juce::AudioSampleBuffer& waveform)
 {
-	auto* copiedWaveform = new juce::AudioSampleBuffer(waveform);
-	auto size = copiedWaveform->getNumSamples();
-	copiedWaveform->setSize(copiedWaveform->getNumChannels(), size + 1, true);
-	auto* samples = copiedWaveform->getWritePointer(0);
-	samples[size] = samples[0];
-	return copiedWaveform;
+    auto* copiedWaveform = new juce::AudioSampleBuffer(waveform);
+    auto size = copiedWaveform->getNumSamples();
+    copiedWaveform->setSize(copiedWaveform->getNumChannels(), size + 1, true);
+    auto* samples = copiedWaveform->getWritePointer(0);
+    samples[size] = samples[0];
+    return copiedWaveform;
 }

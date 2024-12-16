@@ -19,8 +19,7 @@ public:
 
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill, juce::MidiBuffer& midiMessages);
 
-    void setWaveA(juce::AudioSampleBuffer& waveform);
-    void setWaveB(juce::AudioSampleBuffer& waveform);
+    void setWave(const int waveformNum, juce::AudioSampleBuffer& waveform);
 
 private:
     juce::MidiKeyboardState& keyboardState;

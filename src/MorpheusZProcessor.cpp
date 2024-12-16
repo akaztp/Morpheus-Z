@@ -118,17 +118,7 @@ void MorpheusZProcessor::setWaveform(int waveformNum, const WaveformPreset prese
 {
     const std::unique_ptr<juce::AudioSampleBuffer> wave = getWaveformPreset(preset, waveformSize);
     waveforms[waveformNum].copyFrom(0, 0, *wave, 0, 0, wave->getNumSamples());
-    switch (waveformNum)
-    {
-    case 0:
-        synthAudioSource.setWaveA(waveforms[waveformNum]);
-        break;
-    case 1:
-        synthAudioSource.setWaveB(waveforms[waveformNum]);
-        break;
-    default:
-        DBG("wrong waveform number: " << waveformNum);
-    }
+    synthAudioSource.setWave(waveformNum, waveforms[waveformNum]);
     refreshWaveformEditor(waveformNum);
 }
 
@@ -209,17 +199,7 @@ void MorpheusZProcessor::setWaveformValue(
     const float value)
 {
     waveforms[waveformNum].setSample(0, index, value);
-    switch (waveformNum)
-    {
-    case 0:
-        synthAudioSource.setWaveA(waveforms[0]);
-        break;
-    case 1:
-        synthAudioSource.setWaveB(waveforms[1]);
-        break;
-    default:
-        DBG("wrong waveform number: " << waveformNum);
-    }
+    synthAudioSource.setWave(waveformNum, waveforms[waveformNum]);
     refreshWaveformEditor(waveformNum);
 }
 

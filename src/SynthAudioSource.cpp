@@ -28,14 +28,9 @@ void SynthAudioSource::releaseResources()
 {
 }
 
-void SynthAudioSource::setWaveA(juce::AudioSampleBuffer& waveform)
+void SynthAudioSource::setWave(const int waveformNum, juce::AudioSampleBuffer& waveform)
 {
-    morphSound->setWaveA(waveform);
-}
-
-void SynthAudioSource::setWaveB(juce::AudioSampleBuffer& waveform)
-{
-    morphSound->setWaveB(waveform);
+    morphSound->setWave(waveformNum, waveform);
 }
 
 void SynthAudioSource::getNextAudioBlock(
