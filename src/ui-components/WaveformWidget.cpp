@@ -119,20 +119,22 @@ void WaveformWidget::selectWaveform(const int waveformNum)
 void WaveformWidget::resized()
 {
     auto bounds = getLocalBounds();
-    const int buttonsHeight = stylesStore.getNumber(StylesStore::NumberIds::ButtonHeight);
-    const int layoutGutter = stylesStore.getNumber(StylesStore::NumberIds::LayoutGutter);
-    auto bottom = bounds.removeFromBottom(buttonsHeight + layoutGutter);
+    const auto layoutGutter = static_cast<int>(stylesStore.getNumber(StylesStore::NumberIds::LayoutGutter));
+    const auto borderWidth = static_cast<int>(stylesStore.getNumber(StylesStore::NumberIds::BorderWidth));
 
+    auto controls = bounds.removeFromBottom(getControlsHeight());
     waveformBackground->setBounds(bounds);
-    waveformInput->setBounds(bounds);
+
+    const auto waveformBounds = bounds.reduced(borderWidth * 2);
+    waveformInput->setBounds(waveformBounds);
     for (const auto& waveformDisplay : waveformDisplays)
     {
-        waveformDisplay->setBounds(bounds);
+        waveformDisplay->setBounds(waveformBounds);
     }
 
-    bottom.removeFromTop(layoutGutter);
-    auto bottomRight = bottom.removeFromRight(bottom.getWidth() / 2);
-    const int buttonWidth = stylesStore.getNumber(StylesStore::NumberIds::ButtonHeight);
+    controls.removeFromTop(layoutGutter);
+    auto bottomRight = controls.removeFromRight(controls.getWidth() / 2);
+    const auto buttonWidth = static_cast<int>(stylesStore.getNumber(StylesStore::NumberIds::ButtonHeight));
     for (int i = sizeof(presetButtonsConfig) / sizeof(ButtonInfo) - 1; i >= 0; i--)
     {
         presetButtonsConfig[i].button->setBounds(bottomRight.removeFromRight(buttonWidth));
@@ -141,21 +143,40 @@ void WaveformWidget::resized()
 
     for (const auto& waveformSelector : waveformSelectors)
     {
-        waveformSelector->setBounds(bottom.removeFromLeft(buttonWidth));
+        waveformSelector->setBounds(controls.removeFromLeft(buttonWidth));
     }
 
-    bottom.removeFromLeft(stylesStore.getNumber(StylesStore::NumberIds::LayoutMargin));
-    loopButton->setBounds(bottom.removeFromLeft(buttonWidth));
+    controls.removeFromLeft(stylesStore.getNumber(StylesStore::NumberIds::LayoutMargin));
+    loopButton->setBounds(controls.removeFromLeft(buttonWidth));
+}
+
+int WaveformWidget::getPreferredWidth() const
+{
+    const auto borderWidth = static_cast<int>(stylesStore.getNumber(StylesStore::NumberIds::BorderWidth));
+    return waveformInput->getPreferredWidth() + 2 * borderWidth;
+}
+
+int WaveformWidget::getPreferredHeight() const
+{
+    const auto borderWidth = static_cast<int>(stylesStore.getNumber(StylesStore::NumberIds::BorderWidth));
+    return waveformInput->getPreferredHeight() + 2 * borderWidth + getControlsHeight();
+}
+
+int WaveformWidget::getControlsHeight() const
+{
+    const auto buttonHeight =  static_cast<int>(stylesStore.getNumber(StylesStore::NumberIds::ButtonHeight));
+    const auto layoutGutter =  static_cast<int>(stylesStore.getNumber(StylesStore::NumberIds::LayoutGutter));
+    return layoutGutter + buttonHeight;
 }
 
 int WaveformWidget::getWaveformHeight() const
 {
-    return waveformBackground->getHeight();
+    return waveformInput->getHeight();
 }
 
 int WaveformWidget::getWaveformWidth() const
 {
-    return waveformBackground->getWidth();
+    return waveformInput->getWidth();
 }
 
 void WaveformWidget::setSource(

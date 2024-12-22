@@ -13,6 +13,8 @@ public:
 
     void mouseDrag(const juce::MouseEvent& event) override;
 
+    int getPreferredWidth() const;
+    int getPreferredHeight() const;
 
 private:
     std::function<void(const juce::Point<int>& from, const juce::Point<int>& to)> onDraw;

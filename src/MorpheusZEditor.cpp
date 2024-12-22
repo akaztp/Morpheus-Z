@@ -132,13 +132,11 @@ void MorpheusZEditor::resized()
 
 juce::Rectangle<int> MorpheusZEditor::calculateWaveformWidgetBounds() const
 {
-    const auto layoutMargin = stylesStore.getNumber(StylesStore::NumberIds::LayoutMargin);
-    const auto layoutGutter = stylesStore.getNumber(StylesStore::NumberIds::LayoutGutter);
-    const auto layoutHeaderHeight = stylesStore.getNumber(StylesStore::NumberIds::LayoutHeaderHeight);
-    const auto buttonHeight = stylesStore.getNumber(StylesStore::NumberIds::ButtonHeight);
-    const auto width = 512;
-    const auto height = 256 + layoutGutter + buttonHeight;
-    return juce::Rectangle<int>(layoutMargin, layoutHeaderHeight, width, height);
+    return juce::Rectangle<int>(
+        stylesStore.getNumber(StylesStore::NumberIds::LayoutMargin),
+        stylesStore.getNumber(StylesStore::NumberIds::LayoutHeaderHeight),
+        waveformWidget->getPreferredWidth(),
+        waveformWidget->getPreferredHeight());
 }
 
 void MorpheusZEditor::setWaveform(

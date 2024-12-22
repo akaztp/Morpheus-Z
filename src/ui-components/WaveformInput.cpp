@@ -84,3 +84,13 @@ void WaveformInput::forceVerticalBounds(juce::Point<int>& pos) const
         pos.y = 0;
     }
 }
+
+int WaveformInput::getPreferredWidth() const
+{
+    return 512;
+}
+
+int WaveformInput::getPreferredHeight() const
+{
+    return 256;
+}

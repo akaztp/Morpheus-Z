@@ -70,8 +70,10 @@ public:
         double sampleRate,
         juce::int64 hashCode) const;
 
-    int getWaveformHeight() const;
+    int getPreferredWidth() const;
+    int getPreferredHeight() const;
 
+    int getWaveformHeight() const;
     int getWaveformWidth() const;
 
 private:
@@ -107,4 +109,5 @@ private:
     void initLoopButton(juce::AudioProcessorValueTreeState& apvts);
     void initWaveformInput(DrawCallback onDrawCallback);
     void selectWaveform(int waveformNum);
+    int getControlsHeight() const;
 };
