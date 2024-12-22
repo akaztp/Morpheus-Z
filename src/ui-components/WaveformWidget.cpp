@@ -125,7 +125,7 @@ void WaveformWidget::resized()
     auto controls = bounds.removeFromBottom(getControlsHeight());
     waveformBackground->setBounds(bounds);
 
-    const auto waveformBounds = bounds.reduced(borderWidth * 2);
+    const auto waveformBounds = bounds.reduced(borderWidth);
     waveformInput->setBounds(waveformBounds);
     for (const auto& waveformDisplay : waveformDisplays)
     {
