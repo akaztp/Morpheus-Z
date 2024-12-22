@@ -131,7 +131,7 @@ void WaveformWidget::resized()
     }
 
     bottom.removeFromTop(layoutGutter);
-    auto bottomRight = bottom.removeFromRight(bottom.getWidth() >> 1);
+    auto bottomRight = bottom.removeFromRight(bottom.getWidth() / 2);
     const int buttonWidth = stylesStore.getNumber(StylesStore::NumberIds::ButtonHeight);
     for (int i = sizeof(presetButtonsConfig) / sizeof(ButtonInfo) - 1; i >= 0; i--)
     {
