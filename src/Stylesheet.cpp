@@ -47,4 +47,6 @@ const std::map<int, juce::uint32> Stylesheet::lookAndFeel =
     {juce::MidiKeyboardComponent::ColourIds::keyDownOverlayColourId, 0xff817B9B},
     {juce::MidiKeyboardComponent::ColourIds::textLabelColourId, 0xff4E4A60},
     {juce::MidiKeyboardComponent::ColourIds::shadowColourId, 0xff101010},
+
+    {juce::Slider::ColourIds::textBoxOutlineColourId, 0},
 };

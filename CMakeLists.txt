@@ -72,6 +72,12 @@ juce_add_plugin(Morpheus-Z
 
 target_sources(Morpheus-Z
         PRIVATE
+        src/ui-components/EnvelopeDisplay.h
+        src/ui-components/EnvelopeDisplay.cpp
+        src/ui-components/EnvelopeInfo.h
+        src/ui-components/EnvelopeInfo.cpp
+        src/ui-components/EnvelopeWidget.h
+        src/ui-components/EnvelopeWidget.cpp
         src/ui-components/ButtonFrame.h
         src/ui-components/ButtonFrame.cpp
         src/ui-components/CustomSymbols.h

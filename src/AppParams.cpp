@@ -21,20 +21,60 @@ juce::AudioProcessorValueTreeState::ParameterLayout AppParams::createParameterLa
 
     layout.add(
         std::make_unique<juce::AudioParameterFloat>(
-            AppParams::morphDuration,
-            "Morph Duration (sec)",
+            AppParams::morphTime,
+            "Morph Time (sec)",
             0.0f,
             20.0f,
             2.0f));
 
+    layout.add(
+        std::make_unique<juce::AudioParameterFloat>(
+            AppParams::attack,
+            "Attack (sec)",
+            juce::NormalisableRange<float>(0.0f,10.0f),
+            0.1f,
+            "",
+            juce::AudioProcessorParameter::genericParameter,
+            AppParams::formatTime));
+
+    layout.add(
+        std::make_unique<juce::AudioParameterFloat>(
+            AppParams::decay,
+            "Decay (sec)",
+            juce::NormalisableRange<float>(0.0f,10.0f),
+            0.1f,
+            "",
+            juce::AudioProcessorParameter::genericParameter,
+            AppParams::formatTime));
+
+    layout.add(
+        std::make_unique<juce::AudioParameterFloat>(
+            AppParams::sustain,
+            "Sustain Level",
+            juce::NormalisableRange<float>(0.0f,1.0f),
+            0.5f,
+            "",
+            juce::AudioProcessorParameter::genericParameter,
+            AppParams::formatPercent));
+
+    layout.add(
+        std::make_unique<juce::AudioParameterFloat>(
+            AppParams::release,
+            "Release (sec)",
+            juce::NormalisableRange<float>(0.0f,10.0f),
+            0.100f,
+            "",
+            juce::AudioProcessorParameter::genericParameter,
+            AppParams::formatTime));
     return layout;
 }
 
-// constexpr const char* AppParamsArray::operator[](AppParam id) const
-// {
-//     if (id >= AppParam::Count)
-//     {
-//         throw std::out_of_range("Invalid id");
-//     }
-//     return IdNames[static_cast<size_t>(id)];
-// }
+juce::String AppParams::formatTime(const float value, int maximumStringLength)
+{
+    return juce::String(static_cast<int>(value * 1000.0f)) + "ms";
+}
+
+juce::String AppParams::formatPercent(const float value, int maximumStringLength)
+{
+    return juce::String(static_cast<int>(value * 100.0f)) + "%";
+}

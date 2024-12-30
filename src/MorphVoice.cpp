@@ -8,7 +8,7 @@ MorphVoice::MorphVoice(juce::AudioProcessorValueTreeState& apvts)
         apvts.getParameter(AppParams::loopMode));
 
     morphDurationParam = dynamic_cast<juce::AudioParameterFloat*>(
-        apvts.getParameter(AppParams::morphDuration));
+        apvts.getParameter(AppParams::morphTime));
 }
 
 bool MorphVoice::canPlaySound(juce::SynthesiserSound* sound)

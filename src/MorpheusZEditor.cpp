@@ -13,9 +13,10 @@ MorpheusZEditor::MorpheusZEditor(
 {
     initStylesStore();
     initBinaries();
-    initKeyboardComponent(processorRef.keyboardState);
     initWaveformWidget(apvts);
-    initSize();
+    initEnvelopeWidget(apvts);
+    initKeyboardComponent(processorRef.keyboardState);
+    initBounds();
 }
 
 MorpheusZEditor::~MorpheusZEditor()
@@ -44,14 +45,6 @@ void MorpheusZEditor::initBinaries()
     jassert(backgroundImage->isValid());
 }
 
-void MorpheusZEditor::initKeyboardComponent(juce::MidiKeyboardState& keyboardState)
-{
-    keyboardComponent = std::make_unique<juce::MidiKeyboardComponent>(
-        keyboardState,
-        juce::MidiKeyboardComponent::horizontalKeyboard);
-    addAndMakeVisible(*keyboardComponent);
-}
-
 void MorpheusZEditor::initWaveformWidget(juce::AudioProcessorValueTreeState& apvts)
 {
     waveformWidget = std::make_unique<WaveformWidget>(
@@ -72,18 +65,81 @@ void MorpheusZEditor::initWaveformWidget(juce::AudioProcessorValueTreeState& apv
     addAndMakeVisible(*waveformWidget);
 }
 
-void MorpheusZEditor::initSize()
+void MorpheusZEditor::setWaveformWidgetBounds(const int topY) const
 {
-    auto waveformWidgetBounds = calculateWaveformWidgetBounds();
-    const auto keyboardHeight =
-        stylesStore.getNumber(StylesStore::NumberIds::KeyboardHeight);
-    const auto widgetMargin = stylesStore.getNumber(StylesStore::NumberIds::WidgetMargin);
-    const auto width = waveformWidgetBounds.getWidth() + 2 * waveformWidgetBounds.getX();
-    const auto height = waveformWidgetBounds.getY()
-        + waveformWidgetBounds.getHeight()
-        + widgetMargin
-        + keyboardHeight;
-    setSize(width, height);
+    waveformWidget->setBounds(
+        static_cast<int>(
+            stylesStore.getNumber(StylesStore::NumberIds::LayoutMargin)),
+        topY,
+        waveformWidget->getPreferredWidth(),
+        waveformWidget->getPreferredHeight());
+}
+
+void MorpheusZEditor::initEnvelopeWidget(juce::AudioProcessorValueTreeState& apvts)
+{
+    envelopeWidget = std::make_unique<EnvelopeWidget>(apvts, stylesStore);
+    addAndMakeVisible(*envelopeWidget);
+}
+
+void MorpheusZEditor::setEnvelopeWidgetBounds(
+    const int topY,
+    const int contentWidth) const
+{
+    envelopeWidget->setBounds(
+        static_cast<int>(
+            stylesStore.getNumber(StylesStore::NumberIds::LayoutMargin)),
+        topY,
+        contentWidth,
+        envelopeWidget->getPreferredHeight());
+}
+
+void MorpheusZEditor::initKeyboardComponent(juce::MidiKeyboardState& keyboardState)
+{
+    keyboardComponent = std::make_unique<juce::MidiKeyboardComponent>(
+        keyboardState,
+        juce::MidiKeyboardComponent::horizontalKeyboard);
+    addAndMakeVisible(*keyboardComponent);
+}
+
+void MorpheusZEditor::setKeyboardComponentBounds(
+    const int topY,
+    const int windowWidth) const
+{
+    keyboardComponent->setBounds(
+        0,
+        topY,
+        windowWidth,
+        static_cast<int>(
+            stylesStore.getNumber(StylesStore::NumberIds::KeyboardHeight)));
+}
+
+void MorpheusZEditor::initBounds()
+{
+    jassert(waveformWidget.get() != nullptr);
+    jassert(envelopeWidget.get() != nullptr);
+    jassert(keyboardComponent.get() != nullptr);
+
+    const auto layoutMargin = static_cast<int>(
+        stylesStore.getNumber(StylesStore::NumberIds::LayoutMargin));
+    const auto widgetMargin = static_cast<int>(
+        stylesStore.getNumber(StylesStore::NumberIds::WidgetMargin));
+    const auto layoutHeaderHeight = static_cast<int>(
+        stylesStore.getNumber(StylesStore::NumberIds::LayoutHeaderHeight));
+
+    setWaveformWidgetBounds(layoutHeaderHeight);
+
+    const auto contentWidth = waveformWidget->getBounds().getWidth();
+    const auto windowWidth = contentWidth + (layoutMargin * 2);
+
+    setEnvelopeWidgetBounds(
+        waveformWidget->getBounds().getBottom() + widgetMargin,
+        contentWidth);
+
+    setKeyboardComponentBounds(
+        envelopeWidget->getBounds().getBottom() + widgetMargin,
+        windowWidth);
+
+    setSize(windowWidth, keyboardComponent->getBounds().getBottom() + 1);
 }
 
 void MorpheusZEditor::handleWaveformDraw(
@@ -115,28 +171,6 @@ void MorpheusZEditor::handleWaveformDraw(
 void MorpheusZEditor::paint(juce::Graphics& g)
 {
     g.drawImageTransformed(*backgroundImage, backgroundImageHalved);
-}
-
-void MorpheusZEditor::resized()
-{
-    const int keyboardHeight =
-        stylesStore.getNumber(StylesStore::NumberIds::KeyboardHeight);
-    keyboardComponent->setBounds(
-        0,
-        getHeight() - keyboardHeight,
-        getWidth(),
-        keyboardHeight);
-
-    waveformWidget->setBounds(calculateWaveformWidgetBounds());
-}
-
-juce::Rectangle<int> MorpheusZEditor::calculateWaveformWidgetBounds() const
-{
-    return juce::Rectangle<int>(
-        stylesStore.getNumber(StylesStore::NumberIds::LayoutMargin),
-        stylesStore.getNumber(StylesStore::NumberIds::LayoutHeaderHeight),
-        waveformWidget->getPreferredWidth(),
-        waveformWidget->getPreferredHeight());
 }
 
 void MorpheusZEditor::setWaveform(

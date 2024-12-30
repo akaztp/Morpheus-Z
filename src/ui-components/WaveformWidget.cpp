@@ -152,20 +152,25 @@ void WaveformWidget::resized()
 
 int WaveformWidget::getPreferredWidth() const
 {
-    const auto borderWidth = static_cast<int>(stylesStore.getNumber(StylesStore::NumberIds::BorderWidth));
+    const auto borderWidth = static_cast<int>(
+        stylesStore.getNumber(StylesStore::NumberIds::BorderWidth));
     return waveformInput->getPreferredWidth() + 2 * borderWidth;
 }
 
 int WaveformWidget::getPreferredHeight() const
 {
-    const auto borderWidth = static_cast<int>(stylesStore.getNumber(StylesStore::NumberIds::BorderWidth));
-    return waveformInput->getPreferredHeight() + 2 * borderWidth + getControlsHeight();
+    const auto borderWidth = static_cast<int>(
+        stylesStore.getNumber(StylesStore::NumberIds::BorderWidth));
+    return waveformInput->getPreferredHeight() +
+        2 * borderWidth + getControlsHeight();
 }
 
 int WaveformWidget::getControlsHeight() const
 {
-    const auto buttonHeight =  static_cast<int>(stylesStore.getNumber(StylesStore::NumberIds::ButtonHeight));
-    const auto layoutGutter =  static_cast<int>(stylesStore.getNumber(StylesStore::NumberIds::LayoutGutter));
+    const auto buttonHeight = static_cast<int>(
+        stylesStore.getNumber(StylesStore::NumberIds::ButtonHeight));
+    const auto layoutGutter = static_cast<int>(
+        stylesStore.getNumber(StylesStore::NumberIds::LayoutGutter));
     return layoutGutter + buttonHeight;
 }
 
