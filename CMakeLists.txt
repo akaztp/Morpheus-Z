@@ -74,6 +74,8 @@ target_sources(Morpheus-Z
         PRIVATE
         src/ui-components/EnvelopeDisplay.h
         src/ui-components/EnvelopeDisplay.cpp
+        src/ui-components/EnvelopeHandle.h
+        src/ui-components/EnvelopeHandle.cpp
         src/ui-components/EnvelopeInfo.h
         src/ui-components/EnvelopeInfo.cpp
         src/ui-components/EnvelopeWidget.h

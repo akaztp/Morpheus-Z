@@ -39,6 +39,7 @@ public:
         BorderWidth,
         IconStrokeWidth,
         ButtonFontHeight,
+        EnvelopeHandleOpacity,
 
         numIds
     };

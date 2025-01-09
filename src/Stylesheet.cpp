@@ -33,6 +33,7 @@ const std::map<StylesStore::NumberIds, float> Stylesheet::styleNumbers =
     {StylesStore::NumberIds::BorderWidth, 1.0f},
     {StylesStore::NumberIds::IconStrokeWidth, 1.0f},
     {StylesStore::NumberIds::ButtonFontHeight, 15.0f},
+    {StylesStore::NumberIds::EnvelopeHandleOpacity, 0.8f},
 };
 
 const std::map<int, juce::uint32> Stylesheet::lookAndFeel =

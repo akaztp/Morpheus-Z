@@ -31,7 +31,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AppParams::createParameterLa
         std::make_unique<juce::AudioParameterFloat>(
             AppParams::attack,
             "Attack (sec)",
-            juce::NormalisableRange<float>(0.0f,10.0f),
+            juce::NormalisableRange<float>(0.0f,10.0f, 0.0f, 0.3f),
             0.1f,
             "",
             juce::AudioProcessorParameter::genericParameter,
@@ -41,7 +41,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AppParams::createParameterLa
         std::make_unique<juce::AudioParameterFloat>(
             AppParams::decay,
             "Decay (sec)",
-            juce::NormalisableRange<float>(0.0f,10.0f),
+            juce::NormalisableRange<float>(0.0f,10.0f, 0.0f, 0.3f),
             0.1f,
             "",
             juce::AudioProcessorParameter::genericParameter,
@@ -61,7 +61,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AppParams::createParameterLa
         std::make_unique<juce::AudioParameterFloat>(
             AppParams::release,
             "Release (sec)",
-            juce::NormalisableRange<float>(0.0f,10.0f),
+            juce::NormalisableRange<float>(0.0f,10.0f, 0.0f, 0.3f),
             0.100f,
             "",
             juce::AudioProcessorParameter::genericParameter,
