@@ -11,7 +11,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AppParams::createParameterLa
             "Polyphony",
             1,
             32,
-            4));
+            32));
 
     layout.add(
         std::make_unique<juce::AudioParameterBool>(
@@ -51,7 +51,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AppParams::createParameterLa
         std::make_unique<juce::AudioParameterFloat>(
             AppParams::sustain,
             "Sustain Level",
-            juce::NormalisableRange<float>(0.0f,1.0f),
+            juce::NormalisableRange<float>(0.0f,1.0f, 0.0f, 0.5f),
             0.5f,
             "",
             juce::AudioProcessorParameter::genericParameter,

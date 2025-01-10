@@ -3,21 +3,19 @@
 #include "AppParams.h"
 #include "MorphVoice.h"
 
-// @formatter:off
 SynthAudioSource::SynthAudioSource(
     juce::MidiKeyboardState& a,
     juce::AudioProcessorValueTreeState& apvts)
-		: keyboardState(a)
+    : keyboardState(a)
 {
     polyphonyParam = dynamic_cast<juce::AudioParameterInt*>(
         apvts.getParameter(AppParams::polyphony));
-	for (auto i = 0; i < polyphonyParam->get(); ++i)
-	{
-		synth.addVoice(new MorphVoice(apvts));
-	}
-	synth.addSound(morphSound);
+    for (auto i = 0; i < polyphonyParam->get(); ++i)
+    {
+        synth.addVoice(new MorphVoice(apvts));
+    }
+    synth.addSound(morphSound);
 }
-// @formatter:on
 
 void SynthAudioSource::prepareToPlay(int /*samplesPerBlockExpected*/, double sampleRate)
 {

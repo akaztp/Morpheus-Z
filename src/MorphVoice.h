@@ -31,12 +31,15 @@ public:
 private:
 	juce::AudioParameterBool* loopModeParam = nullptr;
 	juce::AudioParameterFloat* morphDurationParam = nullptr;
+	juce::AudioParameterFloat* attackParam = nullptr;
+	juce::AudioParameterFloat* decayParam = nullptr;
+	juce::AudioParameterFloat* sustainParam = nullptr;
+	juce::AudioParameterFloat* releaseParam = nullptr;
 
 
 	// current progress in ratio of the waveform from [0, 1[
 	double waveformPosition = 0.0;
 	// ratio of the waveform to progress on each sample output
-	// >0.0 means sound is being output
 	double waveformDelta = 0.0;
 
 	// current progress in ratio of the morph from [0, 1]
@@ -50,4 +53,8 @@ private:
 	float maxLevel = 0.25f;
 
 	MorphSound* morphSound = nullptr;
+	juce::ADSR adsr;
+
+	void triggerADSR();
+	void stopVoice();
 };
