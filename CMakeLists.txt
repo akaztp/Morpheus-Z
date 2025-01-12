@@ -101,6 +101,7 @@ target_sources(Morpheus-Z
         src/AppParams.cpp
         src/BinaryData.h
         src/BinaryData.cpp
+        src/Global.h
         src/MorpheusZEditor.h
         src/MorpheusZEditor.cpp
         src/MorpheusZProcessor.h
@@ -117,6 +118,7 @@ target_sources(Morpheus-Z
         src/StylesStore.cpp
         src/SynthAudioSource.h
         src/SynthAudioSource.cpp
+        src/ValueMonitor.h
         src/waveformPresets.cpp
         src/waveformPresets.h
 )

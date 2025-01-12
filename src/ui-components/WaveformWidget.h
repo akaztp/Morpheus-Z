@@ -2,6 +2,8 @@
 
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "../StylesStore.h"
+#include "../ValueMonitor.h"
+#include "../Global.h"
 #include "WaveformDisplay.h"
 #include "StyledComponent.h"
 #include "FramedButton.h"
@@ -9,7 +11,6 @@
 #include "SwitchButton.h"
 #include "WaveformBackground.h"
 #include "WaveformInput.h"
-
 
 enum class WaveformPreset
 {
@@ -43,7 +44,9 @@ struct ButtonInfo
     std::unique_ptr<juce::Path> icon;
 };
 
-class WaveformWidget : public StyledComponent, public juce::Component
+class WaveformWidget :
+    public StyledComponent,
+    public juce::Component
 {
 public:
     typedef std::function<void(
@@ -57,18 +60,14 @@ public:
     explicit WaveformWidget(
         juce::AudioProcessorValueTreeState& apvts,
         const StylesStore& stylesStore,
-        juce::AudioThumbnailCache& thumbnailCache,
-        juce::AudioFormatManager& formatManager,
+        const std::vector<juce::AudioSampleBuffer>& waveforms,
+        ValueMonitor<double>& monitorMorphPosition,
         DrawCallback onDrawCallback,
         PresetCallback onPresetCallback);
 
     void resized() override;
 
-    void setSource(
-        int waveNum,
-        const juce::AudioBuffer<float>& newSource,
-        double sampleRate,
-        juce::int64 hashCode) const;
+    void waveformChanged(int waveNum) const;
 
     int getPreferredWidth() const;
     int getPreferredHeight() const;
@@ -77,10 +76,13 @@ public:
     int getWaveformWidth() const;
 
 private:
-    static constexpr int numWaveforms = 2;
     int selectedWaveform = -1;
-    std::unique_ptr<WaveformDisplay> waveformDisplays[numWaveforms];
-    std::unique_ptr<FramedButton> waveformSelectors[numWaveforms];
+    std::vector<std::unique_ptr<WaveformDisplay>> waveformDisplays;
+    std::unique_ptr<WaveformDisplay> waveformMorphMonitor;
+    const std::vector<juce::AudioSampleBuffer>& waveforms;
+    juce::AudioSampleBuffer waveformMorph{1, WAVEFORM_SIZE};
+
+    std::vector<std::unique_ptr<FramedButton>> waveformSelectors;
     std::unique_ptr<WaveformInput> waveformInput;
     std::unique_ptr<WaveformBackground> waveformBackground;
     std::unique_ptr<juce::Path> loopButtonIcon;
@@ -103,11 +105,13 @@ private:
     };
 
     void initWaveformBackground();
-    void initWaveformSelectors();
-    void initWaveformDisplays(juce::AudioThumbnailCache& thumbnailCache, juce::AudioFormatManager& formatManager);
+    void initWaveformSelectors(int numSelectors);
+    void initWaveformDisplays(const std::vector<juce::AudioSampleBuffer>& waveforms);
+    void initWaveformMorphMonitor();
     void initPresetButtons(PresetCallback onPresetCallback);
     void initLoopButton(juce::AudioProcessorValueTreeState& apvts);
     void initWaveformInput(DrawCallback onDrawCallback);
     void selectWaveform(int waveformNum);
     int getControlsHeight() const;
+    void updateMorphMonitor(double monitorMorphPosition);
 };

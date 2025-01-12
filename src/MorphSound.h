@@ -22,8 +22,10 @@ public:
         const double waveformPosition,
         const double morphPosition) const noexcept
     {
+        waveformsLock.enter();
         const auto a = getWaveformSample(waveformPosition, waveforms[0], waveformSizes[0]);
         const auto b = getWaveformSample(waveformPosition, waveforms[1], waveformSizes[1]);
+        waveformsLock.exit();
         return static_cast<float>((1.0 - morphPosition) * a + morphPosition * b);
     }
 
@@ -60,4 +62,6 @@ private:
     // waveform duplicated from the original but wrapped
     juce::AudioSampleBuffer* waveforms[numWaveforms] = {nullptr, nullptr};
     int waveformSizes[numWaveforms] = {0, 0}; // size of the waveform unwrapped
+
+    juce::CriticalSection waveformsLock;
 };

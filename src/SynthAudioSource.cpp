@@ -5,14 +5,19 @@
 
 SynthAudioSource::SynthAudioSource(
     juce::MidiKeyboardState& a,
-    juce::AudioProcessorValueTreeState& apvts)
+    juce::AudioProcessorValueTreeState& apvts,
+    ValueMonitor<double>& monitorMorphPosition)
     : keyboardState(a)
 {
     polyphonyParam = dynamic_cast<juce::AudioParameterInt*>(
         apvts.getParameter(AppParams::polyphony));
     for (auto i = 0; i < polyphonyParam->get(); ++i)
     {
-        synth.addVoice(new MorphVoice(apvts));
+        synth.addVoice(new MorphVoice(
+            i,
+            apvts,
+            monitorMorphPosition,
+            mostRecentActiveMorphVoiceId));
     }
     synth.addSound(morphSound);
 }

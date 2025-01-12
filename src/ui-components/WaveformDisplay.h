@@ -6,22 +6,16 @@
 
 class WaveformDisplay :
     public StyledComponent,
-    public juce::Component,
-    juce::ChangeListener
+    public juce::Component
 {
 public:
     WaveformDisplay(
         const StylesStore& stylesStore,
-        juce::AudioThumbnailCache& thumbnailCache,
-        juce::AudioFormatManager& formatManager);
+        const juce::AudioSampleBuffer& waveform);
 
     ~WaveformDisplay() override;
 
     void paint(juce::Graphics&) override;
-
-    void setSource(const juce::AudioBuffer<float>& newSource, double sampleRate, juce::int64 hashCode);
-
-    void changeListenerCallback(juce::ChangeBroadcaster* source) override;
 
     void setWaveFormColorId(const StylesStore::ColorIds colorId)
     {
@@ -30,6 +24,8 @@ public:
     }
 
 private:
+    const juce::AudioSampleBuffer& waveform;
     StylesStore::ColorIds waveformColorId;
-    juce::AudioThumbnail thumbnail;
+
+    void paintWaveform(juce::Graphics& g, int width, int height) const;
 };

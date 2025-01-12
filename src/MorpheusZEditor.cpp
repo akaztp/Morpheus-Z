@@ -7,13 +7,16 @@
 
 MorpheusZEditor::MorpheusZEditor(
     MorpheusZProcessor& p,
-    juce::AudioProcessorValueTreeState& apvts)
+    juce::AudioProcessorValueTreeState& apvts,
+    const std::vector<juce::AudioSampleBuffer>& waveforms,
+    ValueMonitor<double>& monitorMorphPosition)
     : AudioProcessorEditor(&p),
-      processorRef(p)
+      processorRef(p),
+      waveforms(waveforms)
 {
     initStylesStore();
     initBinaries();
-    initWaveformWidget(apvts);
+    initWaveformWidget(apvts, monitorMorphPosition);
     initEnvelopeWidget(apvts);
     initKeyboardComponent(processorRef.keyboardState);
     initBounds();
@@ -45,10 +48,12 @@ void MorpheusZEditor::initBinaries()
     jassert(backgroundImage->isValid());
 }
 
-void MorpheusZEditor::initWaveformWidget(juce::AudioProcessorValueTreeState& apvts)
+void MorpheusZEditor::initWaveformWidget(
+    juce::AudioProcessorValueTreeState& apvts,
+    ValueMonitor<double>& monitorMorphPosition)
 {
     waveformWidget = std::make_unique<WaveformWidget>(
-        apvts, stylesStore, thumbnailCache, formatManager,
+        apvts, stylesStore, waveforms, monitorMorphPosition,
         [this](const juce::Point<int>& from, const juce::Point<int>& to, const int waveformNum)
         {
             this->handleWaveformDraw(
@@ -151,7 +156,7 @@ void MorpheusZEditor::handleWaveformDraw(
 {
     jassert(to.x >= from.x);
 
-    const int waveformSize = waveformSizes[waveformNum];
+    const int waveformSize = waveforms[waveformNum].getNumSamples();
     const auto height = static_cast<double>(waveform->getWaveformHeight());
     const auto width = static_cast<double>(waveform->getWaveformWidth());
     const auto fromY = static_cast<double>(from.getY());
@@ -173,13 +178,7 @@ void MorpheusZEditor::paint(juce::Graphics& g)
     g.drawImageTransformed(*backgroundImage, backgroundImageHalved);
 }
 
-void MorpheusZEditor::setWaveform(
-    const int waveformNum,
-    const juce::AudioSampleBuffer& waveform,
-    double sampleRate)
+void MorpheusZEditor::waveformChanged(const int waveformNum) const
 {
-    waveformSizes[waveformNum] = waveform.getNumSamples();
-    const auto hash = waveformNum;
-    thumbnailCache.removeThumb(hash);
-    waveformWidget->setSource(waveformNum, waveform, sampleRate, hash);
+    waveformWidget->waveformChanged(waveformNum);
 }

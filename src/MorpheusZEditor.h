@@ -12,27 +12,26 @@ class MorpheusZProcessor;
 class MorpheusZEditor final : public juce::AudioProcessorEditor
 {
 public:
-    explicit MorpheusZEditor(MorpheusZProcessor&, juce::AudioProcessorValueTreeState&);
+    explicit MorpheusZEditor(
+        MorpheusZProcessor&,
+        juce::AudioProcessorValueTreeState&,
+        const std::vector<juce::AudioSampleBuffer>& waveforms,
+        ValueMonitor<double>& monitorMorphPosition);
 
     ~MorpheusZEditor() override;
 
     void paint(juce::Graphics&) override;
 
-    void setWaveform(int waveformNum, const juce::AudioSampleBuffer& waveform, double sampleRate);
+    void waveformChanged(int waveformNum) const;
 
 private:
-    static constexpr int numWaveforms = 2;
-    int waveformSizes[numWaveforms] = {0, 0};
-
+    const std::vector<juce::AudioSampleBuffer>& waveforms;
     juce::LookAndFeel_V4 lookAndFeel;
     StylesStore stylesStore;
 
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     MorpheusZProcessor& processorRef;
-
-    juce::AudioFormatManager formatManager;
-    juce::AudioThumbnailCache thumbnailCache{numWaveforms};
 
     std::unique_ptr<juce::Image> backgroundImage;
     const juce::AffineTransform backgroundImageHalved = juce::AffineTransform::scale(0.5f, 0.5f);
@@ -44,7 +43,9 @@ private:
 
     void initStylesStore();
     void initBinaries();
-    void initWaveformWidget(juce::AudioProcessorValueTreeState&);
+    void initWaveformWidget(
+        juce::AudioProcessorValueTreeState&,
+        ValueMonitor<double>& monitorMorphPosition);
     void setWaveformWidgetBounds(int topY) const;
     void initEnvelopeWidget(juce::AudioProcessorValueTreeState&);
     void setEnvelopeWidgetBounds(int topY, int contentWidth) const;

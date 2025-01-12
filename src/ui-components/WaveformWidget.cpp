@@ -6,19 +6,56 @@
 WaveformWidget::WaveformWidget(
     juce::AudioProcessorValueTreeState& apvts,
     const StylesStore& stylesStore,
-    juce::AudioThumbnailCache& thumbnailCache,
-    juce::AudioFormatManager& formatManager,
+    const std::vector<juce::AudioSampleBuffer>& waveforms,
+    ValueMonitor<double>& monitorMorphPosition,
     DrawCallback onDrawCallback,
-    PresetCallback onPresetCallback)
-    : StyledComponent(stylesStore)
+    PresetCallback onPresetCallback):
+    StyledComponent(stylesStore),
+    waveforms(waveforms)
 {
     initWaveformBackground();
-    initWaveformDisplays(thumbnailCache, formatManager);
+    initWaveformDisplays(waveforms);
+    initWaveformMorphMonitor();
     initWaveformInput(onDrawCallback);
-    initWaveformSelectors();
+    initWaveformSelectors(waveforms.size());
     selectWaveform(0);
     initPresetButtons(onPresetCallback);
     initLoopButton(apvts);
+
+    monitorMorphPosition.addObserver([this](double value)
+    {
+        this->updateMorphMonitor(value);
+    });
+}
+
+void WaveformWidget::updateMorphMonitor(double monitorMorphPosition)
+{
+    const auto mixFactor = monitorMorphPosition;
+    if (mixFactor == MONITOR_MORPH_POSITION_OFF)
+    {
+        if (!waveformMorph.hasBeenCleared())
+        {
+            waveformMorph.clear();
+            waveformMorphMonitor->setVisible(false);
+            waveformMorphMonitor->repaint();
+        }
+    }
+    else
+    {
+        const auto size = waveformMorph.getNumSamples();
+        jassert(size == waveforms[0].getNumSamples());
+        jassert(size == waveforms[1].getNumSamples());
+        for (int i = 0; i < size; ++i)
+        {
+            waveformMorph.setSample(
+                0,
+                i,
+                waveforms[0].getSample(0, i) * (1.0 - mixFactor)
+                + waveforms[1].getSample(0, i) * mixFactor);
+        }
+        waveformMorphMonitor->setVisible(true);
+        waveformMorphMonitor->repaint();
+    }
 }
 
 void WaveformWidget::initWaveformBackground()
@@ -27,9 +64,11 @@ void WaveformWidget::initWaveformBackground()
     addAndMakeVisible(*waveformBackground);
 }
 
-void WaveformWidget::initWaveformSelectors()
+
+void WaveformWidget::initWaveformSelectors(const int numSelectors)
 {
-    for (auto i = 0; i < numWaveforms; ++i)
+    waveformSelectors.resize(numSelectors);
+    for (auto i = 0; i < numSelectors; ++i)
     {
         waveformSelectors[i] = std::make_unique<FramedButton>(
             stylesStore,
@@ -42,19 +81,28 @@ void WaveformWidget::initWaveformSelectors()
 }
 
 void WaveformWidget::initWaveformDisplays(
-    juce::AudioThumbnailCache& thumbnailCache,
-    juce::AudioFormatManager& formatManager)
+    const std::vector<juce::AudioSampleBuffer>& waveforms)
 {
-    for (auto i = 0; i < numWaveforms; ++i)
+    waveformDisplays.resize(waveforms.size());
+    for (auto i = 0; i < waveforms.size(); ++i)
     {
         waveformDisplays[i] = std::make_unique<WaveformDisplay>(
             stylesStore,
-            thumbnailCache,
-            formatManager
-        );
+            waveforms[i]);
         addAndMakeVisible(*waveformDisplays[i]);
     }
 }
+
+void WaveformWidget::initWaveformMorphMonitor()
+{
+    waveformMorphMonitor = std::make_unique<WaveformDisplay>(
+        stylesStore,
+        waveformMorph);
+    waveformMorphMonitor->setWaveFormColorId(
+        StylesStore::ColorIds::WaveformMonitor);
+    addAndMakeVisible(*waveformMorphMonitor);
+}
+
 
 void WaveformWidget::initPresetButtons(PresetCallback onPresetCallback)
 {
@@ -103,7 +151,7 @@ void WaveformWidget::initWaveformInput(DrawCallback onDrawCallback)
 void WaveformWidget::selectWaveform(const int waveformNum)
 {
     selectedWaveform = waveformNum;
-    for (auto i = 0; i < numWaveforms; ++i)
+    for (auto i = 0; i < waveformSelectors.size(); ++i)
     {
         waveformSelectors[i]->setToggleState(
             i == selectedWaveform,
@@ -131,6 +179,7 @@ void WaveformWidget::resized()
     {
         waveformDisplay->setBounds(waveformBounds);
     }
+    waveformMorphMonitor->setBounds(waveformBounds);
 
     controls.removeFromTop(layoutGutter);
     auto bottomRight = controls.removeFromRight(controls.getWidth() / 2);
@@ -184,11 +233,7 @@ int WaveformWidget::getWaveformWidth() const
     return waveformInput->getWidth();
 }
 
-void WaveformWidget::setSource(
-    const int waveNum,
-    const juce::AudioBuffer<float>& newSource,
-    const double sampleRate,
-    const juce::int64 hashCode) const
+void WaveformWidget::waveformChanged(const int waveNum) const
 {
-    waveformDisplays[waveNum]->setSource(newSource, sampleRate, hashCode);
+    waveformDisplays[waveNum]->repaint();
 }

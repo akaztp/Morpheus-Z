@@ -16,9 +16,10 @@ const std::map<StylesStore::ColorIds, juce::uint32> Stylesheet::styleColours =
     {StylesStore::ColorIds::HighlightedFill, 0xffF3D4FF},
     {StylesStore::ColorIds::MenuText, 0xffC4B0CC},
     {StylesStore::ColorIds::SelectedFill, 0xff817B9B},
-    {StylesStore::ColorIds::WaveformDisplay_SelectedWave, 0xffF3D4FF},
+    {StylesStore::ColorIds::WaveformDisplay_SelectedWave, 0xA0F3D4FF},
     {StylesStore::ColorIds::WaveformDisplay_UnselectedWave, 0x40F3D4FF},
-    {StylesStore::ColorIds::WaveformDisplay_origin, 0x40817B9B},
+    {StylesStore::ColorIds::WaveformDisplay_origin, 0x30817B9B},
+    {StylesStore::ColorIds::WaveformMonitor, 0x805080F0},
 };
 
 const std::map<StylesStore::NumberIds, float> Stylesheet::styleNumbers =
@@ -34,6 +35,7 @@ const std::map<StylesStore::NumberIds, float> Stylesheet::styleNumbers =
     {StylesStore::NumberIds::IconStrokeWidth, 1.0f},
     {StylesStore::NumberIds::ButtonFontHeight, 15.0f},
     {StylesStore::NumberIds::EnvelopeHandleOpacity, 0.8f},
+    {StylesStore::NumberIds::waveformThickness, 2.0f},
 };
 
 const std::map<int, juce::uint32> Stylesheet::lookAndFeel =

@@ -2,9 +2,11 @@
 
 void MorphSound::setWave(const int waveformNum, juce::AudioSampleBuffer& waveform)
 {
+    waveformsLock.enter();
     delete waveforms[waveformNum];
     waveformSizes[waveformNum] = waveform.getNumSamples();
     waveforms[waveformNum] = wrapWaveform(waveform);
+    waveformsLock.exit();
 }
 
 bool MorphSound::appliesToNote(int)

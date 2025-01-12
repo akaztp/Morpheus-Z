@@ -1,8 +1,16 @@
+#include "Global.h"
 #include "AppParams.h"
 #include "MorphVoice.h"
 #include "MorphSound.h"
 
-MorphVoice::MorphVoice(juce::AudioProcessorValueTreeState& apvts)
+MorphVoice::MorphVoice(
+    int id,
+    juce::AudioProcessorValueTreeState& apvts,
+    ValueMonitor<double>& monitorMorphPosition,
+    int& mostRecentActiveId):
+    id(id),
+    monitorMorphPosition(monitorMorphPosition),
+    mostRecentActiveId(mostRecentActiveId)
 {
     loopModeParam = dynamic_cast<juce::AudioParameterBool*>(
         apvts.getParameter(AppParams::loopMode));
@@ -50,6 +58,8 @@ void MorphVoice::startNote(
         level = velocity * maxLevel;
 
         triggerADSR();
+
+        mostRecentActiveId = id;
     }
 }
 
@@ -80,6 +90,10 @@ void MorphVoice::stopVoice()
 {
     adsr.reset();
     clearCurrentNote();
+    if (mostRecentActiveId == id)
+    {
+        monitorMorphPosition.setValue(MONITOR_MORPH_POSITION_OFF);
+    }
     waveformDelta = 0.0;
     waveformPosition = 0.0;
     morphPosition = 0.0;
@@ -109,6 +123,11 @@ void MorphVoice::renderNextBlock(
 
         for (auto i = outputBuffer.getNumChannels(); --i >= 0;)
             outputBuffer.addSample(i, startSample, currentSample * currentADSR);
+
+        if (mostRecentActiveId == id)
+        {
+            monitorMorphPosition.setValue(morphPosition);
+        }
 
         waveformPosition += waveformDelta;
         if (waveformPosition >= 1.0)

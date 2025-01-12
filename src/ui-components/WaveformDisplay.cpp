@@ -4,45 +4,49 @@
 
 WaveformDisplay::WaveformDisplay(
     const StylesStore& stylesStore,
-    juce::AudioThumbnailCache& thumbnailCache,
-    juce::AudioFormatManager& formatManager)
+    const juce::AudioSampleBuffer& waveform)
     : StyledComponent(stylesStore),
-      thumbnail(1, formatManager, thumbnailCache)
+      waveform(waveform)
 {
-    thumbnail.addChangeListener(this);
 }
 
 WaveformDisplay::~WaveformDisplay()
 {
-    thumbnail.removeChangeListener(this);
 }
 
-void WaveformDisplay::setSource(
-    const juce::AudioBuffer<float>& newSource,
-    const double sampleRate,
-    const juce::int64 hashCode)
-{
-    thumbnail.setSource(&newSource, sampleRate, hashCode);
-}
-
-void WaveformDisplay::changeListenerCallback(juce::ChangeBroadcaster* source)
-{
-    juce::ignoreUnused(source);
-    repaint();
-}
 
 void WaveformDisplay::paint(juce::Graphics& g)
 {
-    const auto width = getWidth();
-    const auto height = getHeight();
-    const juce::Rectangle<int> thumbnailBounds(0, 0, width, height);
+    if (isVisible())
+    {
+        const auto width = getWidth();
+        const auto height = getHeight();
 
-    g.setColour(stylesStore
-                      .getColor(waveformColorId));
-    thumbnail.drawChannel(g,
-                          thumbnailBounds,
-                          0.0,
-                          thumbnail.getTotalLength(),
-                          0,
-                          1.0f);
+        g.setColour(stylesStore.getColor(waveformColorId));
+        paintWaveform(g, width, height);
+    }
+}
+
+
+void WaveformDisplay::paintWaveform(
+    juce::Graphics& g,
+    const int width,
+    const int height) const
+{
+    const auto halfHeight = height / 2;
+    const auto numSamples = waveform.getNumSamples();
+    juce::Path path;
+    path.startNewSubPath(
+        0,
+        halfHeight - waveform.getSample(0, 0) * halfHeight);
+    for (int i = 1; i < numSamples; ++i)
+    {
+        path.lineTo(
+            width * i / numSamples,
+            halfHeight - waveform.getSample(0, i) * halfHeight);
+    }
+    g.strokePath(
+        path,
+        juce::PathStrokeType(
+            stylesStore.getNumber(StylesStore::NumberIds::waveformThickness)));
 }

@@ -23,6 +23,7 @@ public:
         WaveformDisplay_SelectedWave,
         WaveformDisplay_UnselectedWave,
         WaveformDisplay_origin,
+        WaveformMonitor,
 
         numIds,
     };
@@ -40,6 +41,7 @@ public:
         IconStrokeWidth,
         ButtonFontHeight,
         EnvelopeHandleOpacity,
+        waveformThickness,
 
         numIds
     };
