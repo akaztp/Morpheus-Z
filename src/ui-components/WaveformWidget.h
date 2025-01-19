@@ -104,10 +104,12 @@ private:
         },
     };
 
-    void initWaveformBackground();
+    void initWaveformBackground(juce::AudioProcessorValueTreeState& apvts);
     void initWaveformSelectors(int numSelectors);
-    void initWaveformDisplays(const std::vector<juce::AudioSampleBuffer>& waveforms);
-    void initWaveformMorphMonitor();
+    void initWaveformDisplays(
+        juce::AudioProcessorValueTreeState& apvts,
+        const std::vector<juce::AudioSampleBuffer>& waveforms);
+    void initWaveformMorphMonitor(juce::AudioProcessorValueTreeState& apvts);
     void initPresetButtons(PresetCallback onPresetCallback);
     void initLoopButton(juce::AudioProcessorValueTreeState& apvts);
     void initWaveformInput(DrawCallback onDrawCallback);

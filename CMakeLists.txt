@@ -85,6 +85,8 @@ target_sources(Morpheus-Z
         src/ui-components/CustomSymbols.h
         src/ui-components/FramedButton.h
         src/ui-components/FramedButton.cpp
+        src/ui-components/SideControls.h
+        src/ui-components/SideControls.cpp
         src/ui-components/StyledComponent.h
         src/ui-components/StyledComponent.cpp
         src/ui-components/SwitchButton.h

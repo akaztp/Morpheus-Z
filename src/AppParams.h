@@ -13,6 +13,7 @@ struct AppParams
     static constexpr Param decay = "Decay Time";
     static constexpr Param sustain = "Sustain Level";
     static constexpr Param release = "Release Time";
+    static constexpr Param waveformDisplayMode = "Waveform Display Mode";
 
     static juce::AudioProcessorValueTreeState::ParameterLayout createParameterLayout();
 
@@ -21,3 +22,14 @@ private:
 
     static juce::String AppParams::formatPercent(float value, int maximumStringLength);
 };
+
+enum class WaveformDisplayMode : int
+{
+    Cartesian = 0,
+    Polar,
+};
+
+inline juce::StringArray waveformDisplayNames({
+    "Cartesian",
+    "Polar",
+});

@@ -13,9 +13,9 @@ WaveformWidget::WaveformWidget(
     StyledComponent(stylesStore),
     waveforms(waveforms)
 {
-    initWaveformBackground();
-    initWaveformDisplays(waveforms);
-    initWaveformMorphMonitor();
+    initWaveformBackground(apvts);
+    initWaveformDisplays(apvts, waveforms);
+    initWaveformMorphMonitor(apvts);
     initWaveformInput(onDrawCallback);
     initWaveformSelectors(waveforms.size());
     selectWaveform(0);
@@ -58,9 +58,12 @@ void WaveformWidget::updateMorphMonitor(double monitorMorphPosition)
     }
 }
 
-void WaveformWidget::initWaveformBackground()
+
+void WaveformWidget::initWaveformBackground(
+    juce::AudioProcessorValueTreeState& apvts)
 {
-    waveformBackground = std::make_unique<WaveformBackground>(stylesStore);
+    waveformBackground =
+        std::make_unique<WaveformBackground>(stylesStore, apvts);
     addAndMakeVisible(*waveformBackground);
 }
 
@@ -81,6 +84,7 @@ void WaveformWidget::initWaveformSelectors(const int numSelectors)
 }
 
 void WaveformWidget::initWaveformDisplays(
+    juce::AudioProcessorValueTreeState& apvts,
     const std::vector<juce::AudioSampleBuffer>& waveforms)
 {
     waveformDisplays.resize(waveforms.size());
@@ -88,15 +92,19 @@ void WaveformWidget::initWaveformDisplays(
     {
         waveformDisplays[i] = std::make_unique<WaveformDisplay>(
             stylesStore,
-            waveforms[i]);
+            apvts,
+            waveforms[i]
+        );
         addAndMakeVisible(*waveformDisplays[i]);
     }
 }
 
-void WaveformWidget::initWaveformMorphMonitor()
+void WaveformWidget::initWaveformMorphMonitor(
+    juce::AudioProcessorValueTreeState& apvts)
 {
     waveformMorphMonitor = std::make_unique<WaveformDisplay>(
         stylesStore,
+        apvts,
         waveformMorph);
     waveformMorphMonitor->setWaveFormColorId(
         StylesStore::ColorIds::WaveformMonitor);

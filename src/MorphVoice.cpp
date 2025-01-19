@@ -4,7 +4,7 @@
 #include "MorphSound.h"
 
 MorphVoice::MorphVoice(
-    int id,
+    const int id,
     juce::AudioProcessorValueTreeState& apvts,
     ValueMonitor<double>& monitorMorphPosition,
     int& mostRecentActiveId):
@@ -44,6 +44,8 @@ void MorphVoice::startNote(
     juce::SynthesiserSound* sound,
     int currentPitchWheelPosition)
 {
+    juce::ignoreUnused(currentPitchWheelPosition);
+
     morphSound = dynamic_cast<MorphSound*>(sound);
     if (morphSound != nullptr)
     {
@@ -79,6 +81,7 @@ void MorphVoice::triggerADSR()
 
 void MorphVoice::stopNote(float velocity, bool allowTailOff)
 {
+    juce::ignoreUnused(velocity);
     adsr.noteOff();
     if (!allowTailOff)
     {
@@ -155,8 +158,10 @@ void MorphVoice::renderNextBlock(
 
 void MorphVoice::pitchWheelMoved(int newPitchWheelValue)
 {
+    juce::ignoreUnused(newPitchWheelValue);
 }
 
 void MorphVoice::controllerMoved(int controllerNumber, int newControllerValue)
 {
+    juce::ignoreUnused(controllerNumber, newControllerValue);
 }

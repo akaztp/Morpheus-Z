@@ -3,37 +3,38 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "../StylesStore.h"
 #include "StyledComponent.h"
+#include "FramedButton.h"
 
-
-class WaveformDisplay :
+class SideControls :
     public StyledComponent,
     public juce::Component,
     public juce::AudioProcessorParameter::Listener
 {
 public:
-    WaveformDisplay(
-        const StylesStore& stylesStore,
+    SideControls(
         juce::AudioProcessorValueTreeState& apvts,
-         const juce::AudioSampleBuffer& waveform);
+        const StylesStore& stylesStore);
 
-    ~WaveformDisplay() override;
+    ~SideControls() override;
 
-    void paint(juce::Graphics&) override;
+    void resized() override;
+    void selectDisplayMode(int displayMode) const;
+    void updateButtonsState() const;
 
-    void setWaveFormColorId(const StylesStore::ColorIds colorId)
-    {
-        waveformColorId = colorId;
-        repaint();
-    }
+    int getPreferredWidth() const;
+    int getPreferredHeight() const;
 
 private:
-    const juce::AudioSampleBuffer& waveform;
-    StylesStore::ColorIds waveformColorId;
+    std::unique_ptr<juce::Path> cartesianButtonIcon;
+    std::unique_ptr<FramedButton> cartesianButton;
+
+    std::unique_ptr<juce::Path> polarButtonIcon;
+    std::unique_ptr<FramedButton> polarButton;
+
     juce::AudioParameterChoice* waveformDisplayModeParam = nullptr;
 
+    void initDisplayModeSelectors();
     void initParams(juce::AudioProcessorValueTreeState& apvts);
-    void paintCartesian(juce::Graphics& g, int width, int height) const;
-    void paintPolar(juce::Graphics& g, int width, int height) const;
     void parameterValueChanged(int parameterIndex, float newValue) override;
     void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override;
 };

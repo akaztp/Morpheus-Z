@@ -31,7 +31,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AppParams::createParameterLa
         std::make_unique<juce::AudioParameterFloat>(
             AppParams::attack,
             "Attack (sec)",
-            juce::NormalisableRange<float>(0.0f,10.0f, 0.0f, 0.3f),
+            juce::NormalisableRange<float>(0.0f, 10.0f, 0.0f, 0.3f),
             0.1f,
             "",
             juce::AudioProcessorParameter::genericParameter,
@@ -41,7 +41,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AppParams::createParameterLa
         std::make_unique<juce::AudioParameterFloat>(
             AppParams::decay,
             "Decay (sec)",
-            juce::NormalisableRange<float>(0.0f,10.0f, 0.0f, 0.3f),
+            juce::NormalisableRange<float>(0.0f, 10.0f, 0.0f, 0.3f),
             0.1f,
             "",
             juce::AudioProcessorParameter::genericParameter,
@@ -51,7 +51,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout AppParams::createParameterLa
         std::make_unique<juce::AudioParameterFloat>(
             AppParams::sustain,
             "Sustain Level",
-            juce::NormalisableRange<float>(0.0f,1.0f, 0.0f, 0.5f),
+            juce::NormalisableRange<float>(0.0f, 1.0f, 0.0f, 0.5f),
             0.5f,
             "",
             juce::AudioProcessorParameter::genericParameter,
@@ -61,20 +61,31 @@ juce::AudioProcessorValueTreeState::ParameterLayout AppParams::createParameterLa
         std::make_unique<juce::AudioParameterFloat>(
             AppParams::release,
             "Release (sec)",
-            juce::NormalisableRange<float>(0.0f,10.0f, 0.0f, 0.3f),
+            juce::NormalisableRange<float>(0.0f, 10.0f, 0.0f, 0.3f),
             0.100f,
             "",
             juce::AudioProcessorParameter::genericParameter,
             AppParams::formatTime));
+
+    layout.add(
+        std::make_unique<juce::AudioParameterChoice>(
+            AppParams::waveformDisplayMode,
+            "Waveform Display Mode",
+            waveformDisplayNames,
+            static_cast<int>(WaveformDisplayMode::Polar)
+        ));
+
     return layout;
 }
 
 juce::String AppParams::formatTime(const float value, int maximumStringLength)
 {
+    juce::ignoreUnused(maximumStringLength);
     return juce::String(static_cast<int>(value * 1000.0f)) + "ms";
 }
 
 juce::String AppParams::formatPercent(const float value, int maximumStringLength)
 {
+    juce::ignoreUnused(maximumStringLength);
     return juce::String(static_cast<int>(value * 100.0f)) + "%";
 }

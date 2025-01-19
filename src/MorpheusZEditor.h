@@ -5,6 +5,8 @@
 #include "Stylesheet.h"
 #include "StylesStore.h"
 #include "ui-components/EnvelopeWidget.h"
+#include "ui-components/SideControls.h"
+
 
 class MorpheusZProcessor;
 
@@ -28,6 +30,7 @@ private:
     const std::vector<juce::AudioSampleBuffer>& waveforms;
     juce::LookAndFeel_V4 lookAndFeel;
     StylesStore stylesStore;
+    juce::AudioParameterChoice* waveformDisplayModeParam = nullptr;
 
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
@@ -41,8 +44,13 @@ private:
 
     std::unique_ptr<EnvelopeWidget> envelopeWidget;
 
+    std::unique_ptr<SideControls> sideControls;
+
     void initStylesStore();
+    void initParams(juce::AudioProcessorValueTreeState& apvts);
     void initBinaries();
+    void initSideControls(juce::AudioProcessorValueTreeState& apvts);
+    void setSideControlsBounds(int left, int top) const;
     void initWaveformWidget(
         juce::AudioProcessorValueTreeState&,
         ValueMonitor<double>& monitorMorphPosition);
@@ -55,10 +63,27 @@ private:
 
     void handleWaveformDraw(
         int waveformNum,
-        WaveformWidget* waveform,
-        const juce::Point<int>& from,
-        const juce::Point<int>& to, // to.x is always equal or bigger than from.x
+        const WaveformWidget* waveform,
+        const juce::Point<int>& former,
+        const juce::Point<int>& later,
         void (MorpheusZProcessor::*processorCallBack)(int, int, float)) const;
+    void handleWaveformCartDraw(
+        int waveformNum,
+        const WaveformWidget* widget,
+        const juce::Point<int>& former,
+        const juce::Point<int>& later,
+        void (MorpheusZProcessor::*processorCallBack)(int, int, float)) const;
+    void handleWaveformPolarDraw(
+        int waveformNum,
+        const WaveformWidget* widget,
+        const juce::Point<int>& former,
+        const juce::Point<int>& later,
+        void (MorpheusZProcessor::*processorCallBack)(int, int, float)) const;
+    static float trimSample(float value);
+    static juce::Point<double> cartToPolar(
+        juce::Point<int> pos,
+        juce::Point<int> center,
+        double radius);
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MorpheusZEditor)
 };

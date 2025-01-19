@@ -21,76 +21,26 @@ void WaveformInput::mouseDown(const juce::MouseEvent& event)
 
 void WaveformInput::mouseDrag(const juce::MouseEvent& event)
 {
-    if (onDraw == nullptr)
-    {
-        return;
-    }
+    if (onDraw == nullptr) { return; }
 
     auto pos = event.getPosition();
-    forceVerticalBounds(pos);
-    const auto forcedHorizontally = forceHorizontalBounds(pos);
-    const auto x = pos.getX();
-    const auto y = pos.getY();
-    const auto lastX = lastMousePosition.getX();
-    const auto lastY = lastMousePosition.getY();
-    if (x == lastX)
-    {
-        if (y != lastY && !forcedHorizontally)
-        {
-            onDraw(pos, pos);
-        }
-    }
-    else
-    {
-        if (x > lastX)
-        {
-            onDraw(lastMousePosition, pos);
-        }
-        else
-        {
-            onDraw(pos, lastMousePosition);
-        }
-    }
-
+    pos.x = forceHighLimit(pos.x, getWidth() - 1);
+    pos.y = forceHighLimit(pos.y, getHeight() - 1);
+    onDraw(lastMousePosition, pos);
     lastMousePosition = pos;
 }
 
-bool WaveformInput::forceHorizontalBounds(juce::Point<int>& pos) const
+int WaveformInput::forceHighLimit(const int value, const int hiLimit)
 {
-    auto forced = false;
-    const auto x = pos.getX();
-    if (x >= getWidth())
-    {
-        pos.x = getWidth() - 1;
-        forced = true;
-    }
-    else if (x < 0)
-    {
-        pos.x = 0;
-        forced = true;
-    }
-    return forced;
+    return value > hiLimit ? hiLimit : (value < 0 ? 0 : value);
 }
 
-void WaveformInput::forceVerticalBounds(juce::Point<int>& pos) const
-{
-    const auto y = pos.getY();
-    if (y >= getHeight())
-    {
-        pos.y = getHeight() - 1;
-    }
-    else if (y < 0)
-    {
-        pos.y = 0;
-    }
-}
-
-int WaveformInput::getPreferredWidth() const
+int WaveformInput::getPreferredWidth()
 {
     return 510;
 }
 
-int WaveformInput::getPreferredHeight() const
+int WaveformInput::getPreferredHeight()
 {
     return 255;
 }

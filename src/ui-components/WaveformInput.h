@@ -13,13 +13,12 @@ public:
 
     void mouseDrag(const juce::MouseEvent& event) override;
 
-    int getPreferredWidth() const;
-    int getPreferredHeight() const;
+    static int getPreferredWidth();
+    static int getPreferredHeight();
 
 private:
     std::function<void(const juce::Point<int>& from, const juce::Point<int>& to)> onDraw;
     juce::Point<int> lastMousePosition;
 
-    bool forceHorizontalBounds(juce::Point<int>& pos) const;
-    void forceVerticalBounds(juce::Point<int>& pos) const;
+    static int forceHighLimit(int value, int hiLimit);
 };
