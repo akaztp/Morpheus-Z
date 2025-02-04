@@ -2,9 +2,11 @@
 #pragma once
 
 #include <juce_gui_basics/juce_gui_basics.h>
+
+#include "StyledComponent.h"
 #include "../StylesStore.h"
 
-class EnvelopeHandle : public juce::Component
+class EnvelopeHandle : public juce::Component, public StyledComponent
 {
 public:
     EnvelopeHandle(
@@ -22,7 +24,6 @@ public:
     void mouseUp(const juce::MouseEvent& event) override;
 
 private:
-    const StylesStore& stylesStore;
     juce::ComponentDragger dragger;
     bool isBeingDragged = false;
 

@@ -1,39 +1,29 @@
 #include "SynthAudioSource.h"
-
-#include "AppParams.h"
 #include "MorphVoice.h"
 
-SynthAudioSource::SynthAudioSource(
-    juce::MidiKeyboardState& a,
-    juce::AudioProcessorValueTreeState& apvts,
-    ValueMonitor<double>& monitorMorphPosition)
-    : keyboardState(a)
+
+SynthAudioSource::SynthAudioSource(AppState& appState)
+    : appState(appState)
 {
-    polyphonyParam = dynamic_cast<juce::AudioParameterInt*>(
-        apvts.getParameter(AppParams::polyphony));
-    for (auto i = 0; i < polyphonyParam->get(); ++i)
+    const int numVoices = appState.audioParameters.polyphony->get();
+    for (auto i = 0; i < numVoices; ++i)
     {
         synth.addVoice(new MorphVoice(
             i,
-            apvts,
-            monitorMorphPosition,
+            appState,
             mostRecentActiveMorphVoiceId));
     }
-    synth.addSound(morphSound);
+    synth.addSound(new MorphSound(appState));
 }
 
-void SynthAudioSource::prepareToPlay(int /*samplesPerBlockExpected*/, double sampleRate)
+void SynthAudioSource::prepareToPlay(int samplesPerBlockExpected, double sampleRate)
 {
+    juce::ignoreUnused(samplesPerBlockExpected);
     synth.setCurrentPlaybackSampleRate(sampleRate);
 }
 
 void SynthAudioSource::releaseResources()
 {
-}
-
-void SynthAudioSource::setWave(const int waveformNum, juce::AudioSampleBuffer& waveform)
-{
-    morphSound->setWave(waveformNum, waveform);
 }
 
 void SynthAudioSource::getNextAudioBlock(
@@ -49,7 +39,7 @@ void SynthAudioSource::getNextAudioBlock(
 {
     bufferToFill.clearActiveBufferRegion();
 
-    keyboardState.processNextMidiBuffer(
+    appState.keyboardState.processNextMidiBuffer(
         midiMessages,
         bufferToFill.startSample,
         bufferToFill.numSamples,

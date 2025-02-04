@@ -1,33 +1,29 @@
 #include "EnvelopeDisplay.h"
-#include "../AppParams.h"
+#include "../AppState.h"
 
 EnvelopeDisplay::EnvelopeDisplay(
-    juce::AudioProcessorValueTreeState& apvts,
-    const StylesStore& stylesStore) : stylesStore(stylesStore)
+    AppState& appState,
+    const StylesStore& stylesStore) : StyledComponent(stylesStore)
 {
-    initParams(apvts);
+    initParams(appState);
     initEnvelopeHandles();
 }
 
-void EnvelopeDisplay::initParams(juce::AudioProcessorValueTreeState& apvts)
+void EnvelopeDisplay::initParams(AppState& appState)
 {
-    attackParam = dynamic_cast<juce::AudioParameterFloat*>(
-        apvts.getParameter(AppParams::attack));
+    attackParam = appState.audioParameters.attack;
     attackRange = &attackParam->getNormalisableRange();
     attackParam->addListener(this);
 
-    decayParam = dynamic_cast<juce::AudioParameterFloat*>(
-        apvts.getParameter(AppParams::decay));
+    decayParam = appState.audioParameters.decay;
     decayRange = &decayParam->getNormalisableRange();
     decayParam->addListener(this);
 
-    sustainParam = dynamic_cast<juce::AudioParameterFloat*>(
-        apvts.getParameter(AppParams::sustain));
+    sustainParam = appState.audioParameters.sustain;
     sustainRange = &sustainParam->getNormalisableRange();
     sustainParam->addListener(this);
 
-    releaseParam = dynamic_cast<juce::AudioParameterFloat*>(
-        apvts.getParameter(AppParams::release));
+    releaseParam = appState.audioParameters.release;
     releaseRange = &releaseParam->getNormalisableRange();
     releaseParam->addListener(this);
 }

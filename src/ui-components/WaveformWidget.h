@@ -4,6 +4,7 @@
 #include "../StylesStore.h"
 #include "../ValueMonitor.h"
 #include "../Global.h"
+#include "../AppState.h"
 #include "WaveformDisplay.h"
 #include "StyledComponent.h"
 #include "FramedButton.h"
@@ -11,19 +12,13 @@
 #include "SwitchButton.h"
 #include "WaveformBackground.h"
 #include "WaveformInput.h"
+#include "../WaveformPreset.h"
 
-enum class WaveformPreset
-{
-    Sine = 0,
-    Square,
-    Triangle,
-    Sawtooth,
-};
 
 struct ButtonInfo
 {
     ButtonInfo(
-        const WaveformPreset preset,
+        const WaveformPreset::Type preset,
         const juce::String& name,
         const unsigned char* iconData,
         const size_t iconDataSize)
@@ -36,7 +31,7 @@ struct ButtonInfo
     {
     }
 
-    const WaveformPreset preset;
+    const WaveformPreset::Type preset;
     const juce::String name;
     const unsigned char* iconData;
     const size_t iconDataSize;
@@ -54,16 +49,14 @@ public:
         const juce::Point<int>& to,
         int waveformNum)> DrawCallback;
     typedef std::function<void(
-        WaveformPreset preset,
+        WaveformPreset::Type preset,
         int waveformNum)> PresetCallback;
 
     explicit WaveformWidget(
-        juce::AudioProcessorValueTreeState& apvts,
+        AppState& appState,
         const StylesStore& stylesStore,
-        const std::vector<juce::AudioSampleBuffer>& waveforms,
-        ValueMonitor<double>& monitorMorphPosition,
-        DrawCallback onDrawCallback,
-        PresetCallback onPresetCallback);
+        const DrawCallback& onDrawCallback,
+        const PresetCallback& onPresetCallback);
 
     void resized() override;
 
@@ -79,7 +72,6 @@ private:
     int selectedWaveform = -1;
     std::vector<std::unique_ptr<WaveformDisplay>> waveformDisplays;
     std::unique_ptr<WaveformDisplay> waveformMorphMonitor;
-    const std::vector<juce::AudioSampleBuffer>& waveforms;
     juce::AudioSampleBuffer waveformMorph{1, WAVEFORM_SIZE};
 
     std::vector<std::unique_ptr<FramedButton>> waveformSelectors;
@@ -90,30 +82,31 @@ private:
     std::unique_ptr<juce::AudioProcessorValueTreeState::ButtonAttachment> loopButtonAttachment;
 
     ButtonInfo presetButtonsConfig[4] = {
-        ButtonInfo{WaveformPreset::Sine, "Sine", CustomSymbols::sinePathData, sizeof(CustomSymbols::sinePathData)},
         ButtonInfo{
-            WaveformPreset::Square, "Square", CustomSymbols::squarePathData, sizeof(CustomSymbols::squarePathData)
+            WaveformPreset::Type::Sine, "Sine", CustomSymbols::sinePathData, sizeof(CustomSymbols::sinePathData)},
+        ButtonInfo{
+            WaveformPreset::Type::Square, "Square", CustomSymbols::squarePathData, sizeof(CustomSymbols::squarePathData)
         },
         ButtonInfo{
-            WaveformPreset::Triangle, "Triangle", CustomSymbols::trianglePathData,
+            WaveformPreset::Type::Triangle, "Triangle", CustomSymbols::trianglePathData,
             sizeof(CustomSymbols::trianglePathData)
         },
         ButtonInfo{
-            WaveformPreset::Sawtooth, "Sawtooth", CustomSymbols::sawToothFWPathData,
+            WaveformPreset::Type::Sawtooth, "Sawtooth", CustomSymbols::sawToothFWPathData,
             sizeof(CustomSymbols::sawToothFWPathData)
         },
     };
 
-    void initWaveformBackground(juce::AudioProcessorValueTreeState& apvts);
+    void initWaveformBackground(AppState& appState);
     void initWaveformSelectors(int numSelectors);
-    void initWaveformDisplays(
-        juce::AudioProcessorValueTreeState& apvts,
-        const std::vector<juce::AudioSampleBuffer>& waveforms);
-    void initWaveformMorphMonitor(juce::AudioProcessorValueTreeState& apvts);
+    void initWaveformDisplays(AppState& appState);
+    void initWaveformMorphMonitor(AppState& appState);
     void initPresetButtons(PresetCallback onPresetCallback);
-    void initLoopButton(juce::AudioProcessorValueTreeState& apvts);
-    void initWaveformInput(DrawCallback onDrawCallback);
+    void initLoopButton(AppState& appState);
+    void initWaveformInput(const DrawCallback& onDrawCallback);
     void selectWaveform(int waveformNum);
     int getControlsHeight() const;
-    void updateMorphMonitor(double monitorMorphPosition);
+    void updateMorphMonitor(
+        double monitorMorphPosition,
+        AppState& appState);
 };

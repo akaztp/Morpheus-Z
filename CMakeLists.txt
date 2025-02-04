@@ -99,8 +99,8 @@ target_sources(Morpheus-Z
         src/ui-components/WaveformInput.cpp
         src/ui-components/WaveformWidget.h
         src/ui-components/WaveformWidget.cpp
-        src/AppParams.h
-        src/AppParams.cpp
+        src/AppState.h
+        src/AppState.cpp
         src/BinaryData.h
         src/BinaryData.cpp
         src/Global.h
@@ -112,8 +112,8 @@ target_sources(Morpheus-Z
         src/MorphSound.cpp
         src/MorphVoice.h
         src/MorphVoice.cpp
-        src/StateHandler.h
-        src/StateHandler.cpp
+        src/StateSerializer.h
+        src/StateSerializer.cpp
         src/Stylesheet.h
         src/Stylesheet.cpp
         src/StylesStore.h
@@ -121,8 +121,8 @@ target_sources(Morpheus-Z
         src/SynthAudioSource.h
         src/SynthAudioSource.cpp
         src/ValueMonitor.h
-        src/waveformPresets.cpp
-        src/waveformPresets.h
+        src/WaveformPreset.cpp
+        src/WaveformPreset.h
 )
 
 # `target_compile_definitions` adds some preprocessor definitions to our target. In a Projucer

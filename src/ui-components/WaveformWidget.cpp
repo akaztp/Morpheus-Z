@@ -1,34 +1,33 @@
 #include "WaveformWidget.h"
 
-#include <memory>
-#include "../AppParams.h"
+#include <utility>
+
 
 WaveformWidget::WaveformWidget(
-    juce::AudioProcessorValueTreeState& apvts,
+    AppState& appState,
     const StylesStore& stylesStore,
-    const std::vector<juce::AudioSampleBuffer>& waveforms,
-    ValueMonitor<double>& monitorMorphPosition,
-    DrawCallback onDrawCallback,
-    PresetCallback onPresetCallback):
-    StyledComponent(stylesStore),
-    waveforms(waveforms)
+    const DrawCallback& onDrawCallback,
+    const PresetCallback& onPresetCallback)
+    : StyledComponent(stylesStore)
 {
-    initWaveformBackground(apvts);
-    initWaveformDisplays(apvts, waveforms);
-    initWaveformMorphMonitor(apvts);
-    initWaveformInput(onDrawCallback);
-    initWaveformSelectors(waveforms.size());
+    initWaveformBackground(appState);
+    initWaveformDisplays(appState);
+    initWaveformMorphMonitor(appState);
+    initWaveformInput(std::move(onDrawCallback));
+    initWaveformSelectors(appState.waveforms.size());
     selectWaveform(0);
-    initPresetButtons(onPresetCallback);
-    initLoopButton(apvts);
+    initPresetButtons(std::move(onPresetCallback));
+    initLoopButton(appState);
 
-    monitorMorphPosition.addObserver([this](double value)
+    appState.monitorMorphPosition.addObserver([this, &appState](double value)
     {
-        this->updateMorphMonitor(value);
+        this->updateMorphMonitor(value, appState);
     });
 }
 
-void WaveformWidget::updateMorphMonitor(double monitorMorphPosition)
+void WaveformWidget::updateMorphMonitor(
+    const double monitorMorphPosition,
+    AppState& appState)
 {
     const auto mixFactor = monitorMorphPosition;
     if (mixFactor == MONITOR_MORPH_POSITION_OFF)
@@ -43,15 +42,15 @@ void WaveformWidget::updateMorphMonitor(double monitorMorphPosition)
     else
     {
         const auto size = waveformMorph.getNumSamples();
-        jassert(size == waveforms[0].getNumSamples());
-        jassert(size == waveforms[1].getNumSamples());
+        jassert(size == appState.waveforms[0].getNumSamples());
+        jassert(size == appState.waveforms[1].getNumSamples());
         for (int i = 0; i < size; ++i)
         {
             waveformMorph.setSample(
                 0,
                 i,
-                waveforms[0].getSample(0, i) * (1.0 - mixFactor)
-                + waveforms[1].getSample(0, i) * mixFactor);
+                appState.waveforms[0].getSample(0, i) * (1.0 - mixFactor)
+                + appState.waveforms[1].getSample(0, i) * mixFactor);
         }
         waveformMorphMonitor->setVisible(true);
         waveformMorphMonitor->repaint();
@@ -60,10 +59,10 @@ void WaveformWidget::updateMorphMonitor(double monitorMorphPosition)
 
 
 void WaveformWidget::initWaveformBackground(
-    juce::AudioProcessorValueTreeState& apvts)
+    AppState& appState)
 {
     waveformBackground =
-        std::make_unique<WaveformBackground>(stylesStore, apvts);
+        std::make_unique<WaveformBackground>(stylesStore, appState);
     addAndMakeVisible(*waveformBackground);
 }
 
@@ -83,28 +82,25 @@ void WaveformWidget::initWaveformSelectors(const int numSelectors)
     }
 }
 
-void WaveformWidget::initWaveformDisplays(
-    juce::AudioProcessorValueTreeState& apvts,
-    const std::vector<juce::AudioSampleBuffer>& waveforms)
+void WaveformWidget::initWaveformDisplays(AppState& appState)
 {
-    waveformDisplays.resize(waveforms.size());
-    for (auto i = 0; i < waveforms.size(); ++i)
+    waveformDisplays.resize(appState.waveforms.size());
+    for (auto i = 0; i < appState.waveforms.size(); ++i)
     {
         waveformDisplays[i] = std::make_unique<WaveformDisplay>(
             stylesStore,
-            apvts,
-            waveforms[i]
+            appState,
+            appState.waveforms[i]
         );
         addAndMakeVisible(*waveformDisplays[i]);
     }
 }
 
-void WaveformWidget::initWaveformMorphMonitor(
-    juce::AudioProcessorValueTreeState& apvts)
+void WaveformWidget::initWaveformMorphMonitor(AppState& appState)
 {
     waveformMorphMonitor = std::make_unique<WaveformDisplay>(
         stylesStore,
-        apvts,
+        appState,
         waveformMorph);
     waveformMorphMonitor->setWaveFormColorId(
         StylesStore::ColorIds::WaveformMonitor);
@@ -133,20 +129,24 @@ void WaveformWidget::initPresetButtons(PresetCallback onPresetCallback)
     }
 }
 
-void WaveformWidget::initLoopButton(juce::AudioProcessorValueTreeState& apvts)
+void WaveformWidget::initLoopButton(AppState& appState)
 {
     loopButtonIcon = CustomSymbols::createPathFromData(
         CustomSymbols::infinitePathData,
         sizeof(CustomSymbols::infinitePathData));
-    loopButton = std::make_unique<SwitchButton>(stylesStore, "", loopButtonIcon.get(), nullptr);
+    loopButton = std::make_unique<SwitchButton>(
+        stylesStore,
+        "",
+        loopButtonIcon.get(),
+        nullptr);
     loopButtonAttachment = std::make_unique<juce::AudioProcessorValueTreeState::ButtonAttachment>(
-        apvts,
-        AppParams::loopMode,
+        appState.apvts,
+        AppState::Id::loopMode,
         *loopButton);
     addAndMakeVisible(*loopButton);
 }
 
-void WaveformWidget::initWaveformInput(DrawCallback onDrawCallback)
+void WaveformWidget::initWaveformInput(const DrawCallback& onDrawCallback)
 {
     waveformInput = std::make_unique<WaveformInput>(
         [onDrawCallback, this](const juce::Point<int>& from, const juce::Point<int>& to)

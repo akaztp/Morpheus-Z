@@ -1,27 +1,26 @@
 #include "EnvelopeWidget.h"
 
 EnvelopeWidget::EnvelopeWidget(
-    juce::AudioProcessorValueTreeState& apvts,
-    const StylesStore& stylesStore
-): stylesStore(stylesStore)
+    AppState& appState,
+    const StylesStore& stylesStore)
+    : StyledComponent(stylesStore)
 {
-    initEnvelopeDisplay(apvts);
-    initEnvelopeInfo(apvts);
+    initEnvelopeDisplay(appState);
+    initEnvelopeInfo(appState);
 }
 
-void EnvelopeWidget::initEnvelopeDisplay(
-    juce::AudioProcessorValueTreeState& apvts)
+void EnvelopeWidget::initEnvelopeDisplay(AppState& appState)
 {
-    envelopeDisplay = std::make_unique<EnvelopeDisplay>(apvts, stylesStore);
+    envelopeDisplay = std::make_unique<EnvelopeDisplay>(appState, stylesStore);
     addAndMakeVisible(*envelopeDisplay);
 }
 
-void EnvelopeWidget::initEnvelopeInfo(
-    juce::AudioProcessorValueTreeState& apvts)
+void EnvelopeWidget::initEnvelopeInfo(AppState& appState)
 {
-    envelopeInfo = std::make_unique<EnvelopeInfo>(apvts, stylesStore);
+    envelopeInfo = std::make_unique<EnvelopeInfo>(appState, stylesStore);
     addAndMakeVisible(*envelopeInfo);
 }
+
 
 void EnvelopeWidget::resized()
 {

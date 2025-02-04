@@ -2,6 +2,7 @@
 
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "../StylesStore.h"
+#include "../AppState.h"
 #include "StyledComponent.h"
 
 
@@ -13,7 +14,7 @@ class WaveformDisplay :
 public:
     WaveformDisplay(
         const StylesStore& stylesStore,
-        juce::AudioProcessorValueTreeState& apvts,
+        AppState& appState,
          const juce::AudioSampleBuffer& waveform);
 
     ~WaveformDisplay() override;
@@ -31,7 +32,7 @@ private:
     StylesStore::ColorIds waveformColorId;
     juce::AudioParameterChoice* waveformDisplayModeParam = nullptr;
 
-    void initParams(juce::AudioProcessorValueTreeState& apvts);
+    void initParams(AppState& appState);
     void paintCartesian(juce::Graphics& g, int width, int height) const;
     void paintPolar(juce::Graphics& g, int width, int height) const;
     void parameterValueChanged(int parameterIndex, float newValue) override;

@@ -1,13 +1,12 @@
 #include "WaveformBackground.h"
-#include "../AppParams.h"
 
 
 WaveformBackground::WaveformBackground(
     const StylesStore& stylesStore,
-    juce::AudioProcessorValueTreeState& apvts)
-    : stylesStore(stylesStore)
+    AppState& appState)
+    : StyledComponent(stylesStore)
 {
-    initParams(apvts);
+    initParams(appState);
 }
 
 WaveformBackground::~WaveformBackground()
@@ -15,10 +14,9 @@ WaveformBackground::~WaveformBackground()
     waveformDisplayModeParam->removeListener(this);
 }
 
-void WaveformBackground::initParams(juce::AudioProcessorValueTreeState& apvts)
+void WaveformBackground::initParams(AppState& appState)
 {
-    waveformDisplayModeParam = dynamic_cast<juce::AudioParameterChoice*>(
-        apvts.getParameter(AppParams::waveformDisplayMode));
+    waveformDisplayModeParam = appState.audioParameters.waveformDisplayMode;
     waveformDisplayModeParam->addListener(this);
 }
 

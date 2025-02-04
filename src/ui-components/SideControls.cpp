@@ -1,13 +1,14 @@
 #include "SideControls.h"
 #include "CustomSymbols.h"
-#include "../AppParams.h"
+#include "../AppState.h"
+
 
 SideControls::SideControls(
-    juce::AudioProcessorValueTreeState& apvts,
-    const StylesStore& stylesStore):
-    StyledComponent(stylesStore)
+    AppState& appState,
+    const StylesStore& stylesStore)
+    : StyledComponent(stylesStore)
 {
-    initParams(apvts);
+    initParams(appState);
     initDisplayModeSelectors();
     updateButtonsState();
 }
@@ -64,10 +65,10 @@ void SideControls::initDisplayModeSelectors()
     addAndMakeVisible(*polarButton);
 }
 
-void SideControls::initParams(juce::AudioProcessorValueTreeState& apvts)
+void SideControls::initParams(AppState& appState)
 {
-    waveformDisplayModeParam = dynamic_cast<juce::AudioParameterChoice*>(
-        apvts.getParameter(AppParams::waveformDisplayMode));
+    waveformDisplayModeParam =
+        appState.audioParameters.waveformDisplayMode;
     waveformDisplayModeParam->addListener(this);
 }
 

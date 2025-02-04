@@ -1,17 +1,15 @@
 #pragma once
 
 #include "juce_audio_basics/juce_audio_basics.h"
-#include "juce_audio_processors/juce_audio_processors.h"
 #include "MorphSound.h"
-#include "ValueMonitor.h"
+#include "AppState.h"
 
 class MorphVoice : public juce::SynthesiserVoice
 {
 public:
     MorphVoice(
         int id,
-        juce::AudioProcessorValueTreeState& apvts,
-        ValueMonitor<double>& monitorMorphPosition,
+        AppState& appState,
         int& mostRecentActiveId
     );
 
@@ -36,13 +34,7 @@ public:
 
 private:
     int id;
-    juce::AudioParameterBool* loopModeParam = nullptr;
-    juce::AudioParameterFloat* morphDurationParam = nullptr;
-    juce::AudioParameterFloat* attackParam = nullptr;
-    juce::AudioParameterFloat* decayParam = nullptr;
-    juce::AudioParameterFloat* sustainParam = nullptr;
-    juce::AudioParameterFloat* releaseParam = nullptr;
-    ValueMonitor<double>& monitorMorphPosition;
+    AppState& appState;
     int& mostRecentActiveId;
 
     // current progress in ratio of the waveform from [0, 1[

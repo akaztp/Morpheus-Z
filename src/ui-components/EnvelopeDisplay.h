@@ -1,17 +1,20 @@
 #pragma once
 
 #include <juce_audio_utils/juce_audio_utils.h>
-
 #include "EnvelopeHandle.h"
+#include "StyledComponent.h"
 #include "../StylesStore.h"
+#include "../AppState.h"
+
 
 class EnvelopeDisplay :
     public juce::Component,
-    public juce::AudioProcessorParameter::Listener
+    public juce::AudioProcessorParameter::Listener,
+    public StyledComponent
 {
 public:
     EnvelopeDisplay(
-        juce::AudioProcessorValueTreeState& apvts,
+        AppState& appState,
         const StylesStore& stylesStore);
 
     ~EnvelopeDisplay() override;
@@ -35,7 +38,7 @@ private:
     juce::Range<float> sustainDisplayRange;
     juce::Range<float> releaseDisplayRange;
 
-    void initParams(juce::AudioProcessorValueTreeState& apvts);
+    void initParams(AppState& appState);
     void initEnvelopeHandles();
     juce::Rectangle<int> getUsefulBounds() const;
     void paintGraph(juce::Graphics& g) const;
@@ -54,6 +57,4 @@ private:
     const juce::NormalisableRange<float>* sustainRange = nullptr;
     juce::AudioParameterFloat* releaseParam = nullptr;
     const juce::NormalisableRange<float>* releaseRange = nullptr;
-
-    const StylesStore& stylesStore;
 };

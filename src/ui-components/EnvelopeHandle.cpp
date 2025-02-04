@@ -5,7 +5,7 @@ EnvelopeHandle::EnvelopeHandle(
     std::function<void()> onDragStartCallback,
     std::function<void()> onDragEndCallback,
     std::function<void(int, int)> onDragCallback) :
-    stylesStore(stylesStore),
+    StyledComponent(stylesStore),
     onDragStartCallback(std::move(onDragStartCallback)),
     onDragEndCallback(std::move(onDragEndCallback)),
     onDragCallback(std::move(onDragCallback))

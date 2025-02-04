@@ -1,17 +1,13 @@
 #pragma once
 
 #include <juce_audio_basics/juce_audio_basics.h>
-#include "juce_audio_processors/juce_audio_processors.h"
-#include "MorphSound.h"
-#include "ValueMonitor.h"
+#include "AppState.h"
+
 
 class SynthAudioSource : public juce::AudioSource
 {
 public:
-    explicit SynthAudioSource(
-        juce::MidiKeyboardState& keyState,
-        juce::AudioProcessorValueTreeState& apvts,
-        ValueMonitor<double>& monitorMorphPosition);
+    explicit SynthAudioSource(AppState& appState);
 
     void prepareToPlay(int /*samplesPerBlockExpected*/, double sampleRate) override;
 
@@ -21,13 +17,8 @@ public:
 
     void getNextAudioBlock(const juce::AudioSourceChannelInfo& bufferToFill, juce::MidiBuffer& midiMessages);
 
-    void setWave(int waveformNum, juce::AudioSampleBuffer& waveform);
-
 private:
-    juce::MidiKeyboardState& keyboardState;
     juce::Synthesiser synth;
-    juce::AudioParameterInt* polyphonyParam;
+    AppState& appState;
     int mostRecentActiveMorphVoiceId = -1;
-
-    MorphSound* morphSound = new MorphSound();
 };

@@ -1,12 +1,9 @@
 #pragma once
 
 #include <juce_audio_processors/juce_audio_processors.h>
-
-#include "AppParams.h"
-#include "Global.h"
+#include "AppState.h"
 #include "SynthAudioSource.h"
-#include "MorpheusZEditor.h"
-#include "ValueMonitor.h"
+
 
 //==============================================================================
 class MorpheusZProcessor final : public juce::AudioProcessor
@@ -16,10 +13,7 @@ public:
     MorpheusZProcessor();
 
     ~MorpheusZProcessor() override;
-
-    juce::MidiKeyboardState keyboardState;
-    ValueMonitor<double> monitorMorphPosition{MONITOR_MORPH_POSITION_INTERVAL};
-
+    
     //==============================================================================
     void prepareToPlay(double sampleRate, int samplesPerBlock) override;
 
@@ -63,27 +57,9 @@ public:
 
     void setStateInformation(const void* data, int sizeInBytes) override;
 
-    void setWaveform(int waveformNum, WaveformPreset preset);
-
-    void setWaveformValue(int waveformNum, int index, float value);
-
 private:
-    juce::AudioProcessorValueTreeState apvts{
-        *this,
-        nullptr,
-        "AppParams",
-        AppParams::createParameterLayout()
-    };
-    std::vector<juce::AudioSampleBuffer> waveforms = {
-        {1, WAVEFORM_SIZE},
-        {1, WAVEFORM_SIZE}
-    };
+    AppState appState{*this};
     SynthAudioSource synthAudioSource;
-
-    std::unique_ptr<juce::AudioSampleBuffer> getWaveformPreset(
-        WaveformPreset preset,
-        int size) const;
-    void refreshWaveformEditor(int waveformNum) const;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MorpheusZProcessor)
 };

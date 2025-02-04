@@ -1,17 +1,15 @@
-#include "StateHandler.h"
+#include "StateSerializer.h"
 
-void StateHandler::getStateInformation(
+void StateSerializer::getStateInformation(
     juce::MemoryBlock& destData,
-    const juce::AudioSampleBuffer& waveformA,
-    const juce::AudioSampleBuffer& waveformB,
-    juce::AudioProcessorValueTreeState& apvts)
+    AppState& appState)
 {
     /* get the app state into XML */
-    auto appParamsXml = apvts.copyState().createXml();
+    auto appParamsXml = appState.apvts.copyState().createXml();
 
     /* Get the waveform data into XML */
-    auto waveformAXml = getWaveformXml(Elements::waveformA, waveformA);
-    auto waveformBXml = getWaveformXml(Elements::waveformB, waveformB);
+    auto waveformAXml = getWaveformXml(Elements::waveformA, appState.waveforms[0]);
+    auto waveformBXml = getWaveformXml(Elements::waveformB, appState.waveforms[1]);
 
     /* combine the XMLs */
     auto stateXml = std::make_unique<juce::XmlElement>(Elements::state);
@@ -22,7 +20,7 @@ void StateHandler::getStateInformation(
     juce::AudioPluginInstance::copyXmlToBinary(*stateXml, destData);
 }
 
-std::unique_ptr<juce::XmlElement> StateHandler::getWaveformXml(
+std::unique_ptr<juce::XmlElement> StateSerializer::getWaveformXml(
     const juce::String& name,
     const juce::AudioSampleBuffer& waveform)
 {
@@ -37,12 +35,10 @@ std::unique_ptr<juce::XmlElement> StateHandler::getWaveformXml(
     return waveformXml;
 }
 
-void StateHandler::setStateInformation(
+void StateSerializer::setStateInformation(
     const void* data,
     const int sizeInBytes,
-    juce::AudioSampleBuffer& waveformA,
-    juce::AudioSampleBuffer& waveformB,
-    juce::AudioProcessorValueTreeState& apvts)
+    AppState& appState)
 {
     const auto stateXml = juce::AudioPluginInstance::getXmlFromBinary(data, sizeInBytes);
     if (stateXml == nullptr)
@@ -51,20 +47,20 @@ void StateHandler::setStateInformation(
         return;
     }
 
-    setWaveformFromXml(stateXml.get(), Elements::waveformA, waveformA);
-    setWaveformFromXml(stateXml.get(), Elements::waveformB, waveformB);
+    setWaveformFromXml(stateXml.get(), Elements::waveformA, appState.waveforms[0]);
+    setWaveformFromXml(stateXml.get(), Elements::waveformB, appState.waveforms[1]);
 
-    const auto appParamsName = apvts.state.getType();
+    const auto appParamsName = appState.apvts.state.getType();
     juce::XmlElement* appParamsXml = stateXml->getChildByName(appParamsName);
     if (appParamsXml == nullptr)
     {
-        DBG("Failed to find app params XML element: " << appParamsName);
+        DBG("Failed to find appState XML element: " << appParamsName);
         return;
     }
-    apvts.replaceState(juce::ValueTree::fromXml(*appParamsXml));
+    appState.apvts.replaceState(juce::ValueTree::fromXml(*appParamsXml));
 }
 
-void StateHandler::setWaveformFromXml(
+void StateSerializer::setWaveformFromXml(
     const juce::XmlElement* stateXml,
     const juce::String& name,
     juce::AudioSampleBuffer& waveform)

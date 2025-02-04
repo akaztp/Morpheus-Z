@@ -4,6 +4,8 @@
 #include "../StylesStore.h"
 #include "StyledComponent.h"
 #include "FramedButton.h"
+#include "../AppState.h"
+
 
 class SideControls :
     public StyledComponent,
@@ -11,9 +13,7 @@ class SideControls :
     public juce::AudioProcessorParameter::Listener
 {
 public:
-    SideControls(
-        juce::AudioProcessorValueTreeState& apvts,
-        const StylesStore& stylesStore);
+    explicit SideControls(AppState& appState, const StylesStore& stylesStore);
 
     ~SideControls() override;
 
@@ -34,7 +34,7 @@ private:
     juce::AudioParameterChoice* waveformDisplayModeParam = nullptr;
 
     void initDisplayModeSelectors();
-    void initParams(juce::AudioProcessorValueTreeState& apvts);
+    void initParams(AppState& appState);
     void parameterValueChanged(int parameterIndex, float newValue) override;
     void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override;
 };

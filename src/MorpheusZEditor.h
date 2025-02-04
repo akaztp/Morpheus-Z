@@ -6,6 +6,7 @@
 #include "StylesStore.h"
 #include "ui-components/EnvelopeWidget.h"
 #include "ui-components/SideControls.h"
+#include "AppState.h"
 
 
 class MorpheusZProcessor;
@@ -15,10 +16,8 @@ class MorpheusZEditor final : public juce::AudioProcessorEditor
 {
 public:
     explicit MorpheusZEditor(
-        MorpheusZProcessor&,
-        juce::AudioProcessorValueTreeState&,
-        const std::vector<juce::AudioSampleBuffer>& waveforms,
-        ValueMonitor<double>& monitorMorphPosition);
+        MorpheusZProcessor& processor,
+        AppState& appState);
 
     ~MorpheusZEditor() override;
 
@@ -27,10 +26,9 @@ public:
     void waveformChanged(int waveformNum) const;
 
 private:
-    const std::vector<juce::AudioSampleBuffer>& waveforms;
+    AppState& appState;
     juce::LookAndFeel_V4 lookAndFeel;
     StylesStore stylesStore;
-    juce::AudioParameterChoice* waveformDisplayModeParam = nullptr;
 
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
@@ -47,38 +45,35 @@ private:
     std::unique_ptr<SideControls> sideControls;
 
     void initStylesStore();
-    void initParams(juce::AudioProcessorValueTreeState& apvts);
     void initBinaries();
-    void initSideControls(juce::AudioProcessorValueTreeState& apvts);
+    void initSideControls(AppState& appState);
     void setSideControlsBounds(int left, int top) const;
-    void initWaveformWidget(
-        juce::AudioProcessorValueTreeState&,
-        ValueMonitor<double>& monitorMorphPosition);
+    void initWaveformWidget(AppState& appState);
     void setWaveformWidgetBounds(int topY) const;
-    void initEnvelopeWidget(juce::AudioProcessorValueTreeState&);
+    void initEnvelopeWidget(AppState& appState);
     void setEnvelopeWidgetBounds(int topY, int contentWidth) const;
-    void initKeyboardComponent(juce::MidiKeyboardState& keyboardState);
+    void initKeyboard(AppState& appState);
     void setKeyboardComponentBounds(int topY, int windowWidth) const;
     void initBounds();
 
+    void setPresetWaveform(int waveformNum, WaveformPreset::Type preset) const;
+    void setWaveformValue(int waveformNum, int index, float value) const;
     void handleWaveformDraw(
         int waveformNum,
         const WaveformWidget* waveform,
         const juce::Point<int>& former,
         const juce::Point<int>& later,
-        void (MorpheusZProcessor::*processorCallBack)(int, int, float)) const;
+        AppState& appState);
     void handleWaveformCartDraw(
         int waveformNum,
         const WaveformWidget* widget,
         const juce::Point<int>& former,
-        const juce::Point<int>& later,
-        void (MorpheusZProcessor::*processorCallBack)(int, int, float)) const;
+        const juce::Point<int>& later);
     void handleWaveformPolarDraw(
         int waveformNum,
         const WaveformWidget* widget,
         const juce::Point<int>& former,
-        const juce::Point<int>& later,
-        void (MorpheusZProcessor::*processorCallBack)(int, int, float)) const;
+        const juce::Point<int>& later);
     static float trimSample(float value);
     static juce::Point<double> cartToPolar(
         juce::Point<int> pos,

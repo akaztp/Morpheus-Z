@@ -1,17 +1,15 @@
 #include <juce_audio_utils/juce_audio_utils.h>
 #include "WaveformDisplay.h"
-#include "../StylesStore.h"
-#include "../AppParams.h"
 
 
 WaveformDisplay::WaveformDisplay(
     const StylesStore& stylesStore,
-    juce::AudioProcessorValueTreeState& apvts,
+    AppState& appState,
     const juce::AudioSampleBuffer& waveform)
     : StyledComponent(stylesStore),
       waveform(waveform)
 {
-    initParams(apvts);
+    initParams(appState);
 }
 
 WaveformDisplay::~WaveformDisplay()
@@ -19,10 +17,9 @@ WaveformDisplay::~WaveformDisplay()
     waveformDisplayModeParam->removeListener(this);
 }
 
-void WaveformDisplay::initParams(juce::AudioProcessorValueTreeState& apvts)
+void WaveformDisplay::initParams(AppState& appState)
 {
-    waveformDisplayModeParam = dynamic_cast<juce::AudioParameterChoice*>(
-        apvts.getParameter(AppParams::waveformDisplayMode));
+    waveformDisplayModeParam = appState.audioParameters.waveformDisplayMode;
     waveformDisplayModeParam->addListener(this);
 }
 
@@ -87,7 +84,7 @@ void WaveformDisplay::paintPolar(
         static_cast<float>(centerY));
     for (double angle = step; angle < juce::MathConstants<double>::twoPi; angle += step)
     {
-        const auto sample =  1.0f + samples[static_cast<int>(
+        const auto sample = 1.0f + samples[static_cast<int>(
             numSamples * angle / juce::MathConstants<double>::twoPi)];
         path.lineTo(
             static_cast<float>(centerX - std::cos(angle) * radius * sample),

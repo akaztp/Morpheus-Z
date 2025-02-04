@@ -4,25 +4,22 @@
 #include "EnvelopeDisplay.h"
 #include "EnvelopeInfo.h"
 #include "../StylesStore.h"
+#include "../AppState.h"
 
-
-class EnvelopeWidget : public juce::Component
+class EnvelopeWidget : public juce::Component, public StyledComponent
 {
 public:
-    EnvelopeWidget(
-        juce::AudioProcessorValueTreeState& apvts,
-        const StylesStore& stylesStore
-    );
+    explicit EnvelopeWidget(
+        AppState& appState,
+        const StylesStore& stylesStore);
 
     void resized() override;
     int getPreferredHeight() const;
 
 private:
-    const StylesStore& stylesStore;
-
     std::unique_ptr<EnvelopeDisplay> envelopeDisplay;
     std::unique_ptr<EnvelopeInfo> envelopeInfo;
 
-    void initEnvelopeDisplay(juce::AudioProcessorValueTreeState& apvts);
-    void initEnvelopeInfo(juce::AudioProcessorValueTreeState& apvts);
+    void initEnvelopeDisplay(AppState& appState);
+    void initEnvelopeInfo(AppState& appState);
 };

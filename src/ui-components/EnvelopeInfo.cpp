@@ -1,8 +1,8 @@
 #include "EnvelopeInfo.h"
 
 EnvelopeInfo::EnvelopeInfo(
-    juce::AudioProcessorValueTreeState& apvts,
-    const StylesStore& stylesStore) : stylesStore(stylesStore)
+    AppState& appState,
+    const StylesStore& stylesStore) : StyledComponent(stylesStore)
 {
     for (auto& cfg : infoConfig)
     {
@@ -11,8 +11,8 @@ EnvelopeInfo::EnvelopeInfo(
             juce::Slider::TextEntryBoxPosition::TextBoxRight);
         cfg.sliderAttachment =
             std::make_unique<juce::AudioProcessorValueTreeState::SliderAttachment>(
-                apvts,
-                cfg.param,
+                appState.apvts,
+                cfg.paramId,
                 *cfg.slider);
         addAndMakeVisible(*cfg.slider);
     }

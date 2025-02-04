@@ -1,32 +1,28 @@
 #pragma once
 
 #include <juce_audio_basics/juce_audio_basics.h>
-#include <juce_audio_processors/juce_audio_processors.h>
+#include "AppState.h"
 
-class StateHandler
+class StateSerializer
 {
 public:
     static void getStateInformation(
         juce::MemoryBlock& destData,
-        const juce::AudioSampleBuffer& waveformA,
-        const juce::AudioSampleBuffer& waveformB,
-        juce::AudioProcessorValueTreeState& apvts);
+        AppState& appState);
 
     static void setStateInformation(
         const void* data,
         int sizeInBytes,
-        juce::AudioSampleBuffer& waveformA,
-        juce::AudioSampleBuffer& waveformB,
-        juce::AudioProcessorValueTreeState& apvts);
+        AppState& appState);
 
 private:
     // Changing these strings will invalidate previous stored state (files or DAW)
     struct Elements
     {
-        static constexpr const auto state = "State";
-        static constexpr const auto appParams = "AppParams";
-        static constexpr const auto waveformA = "WaveformA";
-        static constexpr const auto waveformB = "WaveformB";
+        static constexpr auto state = "State";
+        static constexpr auto appParams = "AppParams";
+        static constexpr auto waveformA = "WaveformA";
+        static constexpr auto waveformB = "WaveformB";
     };
 
     static std::unique_ptr<juce::XmlElement> getWaveformXml(

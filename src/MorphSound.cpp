@@ -1,12 +1,13 @@
 #include "MorphSound.h"
 
-void MorphSound::setWave(const int waveformNum, juce::AudioSampleBuffer& waveform)
+MorphSound::MorphSound(AppState& appState)
 {
-    waveformsLock.enter();
-    delete waveforms[waveformNum];
-    waveformSizes[waveformNum] = waveform.getNumSamples();
-    waveforms[waveformNum] = wrapWaveform(waveform);
-    waveformsLock.exit();
+    jassert(numWaveforms == appState.waveforms.size());
+    for (int i = 0; i < numWaveforms; ++i)
+    {
+        waveformSizes[i] = appState.waveforms[i].getNumSamples();
+        waveforms[i] = &appState.waveforms[i];
+    }
 }
 
 bool MorphSound::appliesToNote(int)
@@ -19,20 +20,4 @@ bool MorphSound::appliesToChannel(int)
     return true;
 }
 
-MorphSound::~MorphSound()
-{
-    for (auto const waveform : waveforms)
-    {
-        delete waveform;
-    }
-}
-
-juce::AudioSampleBuffer* MorphSound::wrapWaveform(juce::AudioSampleBuffer& waveform)
-{
-    auto* copiedWaveform = new juce::AudioSampleBuffer(waveform);
-    auto size = copiedWaveform->getNumSamples();
-    copiedWaveform->setSize(copiedWaveform->getNumChannels(), size + 1, true);
-    auto* samples = copiedWaveform->getWritePointer(0);
-    samples[size] = samples[0];
-    return copiedWaveform;
-}
+MorphSound::~MorphSound() = default;

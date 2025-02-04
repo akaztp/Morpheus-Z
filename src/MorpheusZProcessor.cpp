@@ -1,27 +1,17 @@
 #include "MorpheusZProcessor.h"
 #include "MorpheusZEditor.h"
-#include "StateHandler.h"
-#include "waveformPresets.h"
+#include "StateSerializer.h"
 
 //==============================================================================
 MorpheusZProcessor::MorpheusZProcessor()
     : AudioProcessor(BusesProperties()
-#if !JucePlugin_IsMidiEffect
-#if !JucePlugin_IsSynth
-				.withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-#endif
           .withOutput("Output", juce::AudioChannelSet::stereo(), true)
-#endif
       ),
-      synthAudioSource(keyboardState, apvts, monitorMorphPosition)
+      synthAudioSource(appState)
 {
-    setWaveform(0, WaveformPreset::Sine);
-    setWaveform(1, WaveformPreset::Triangle);
 }
 
-MorpheusZProcessor::~MorpheusZProcessor()
-{
-}
+MorpheusZProcessor::~MorpheusZProcessor() = default;
 
 //==============================================================================
 const juce::String MorpheusZProcessor::getName() const
@@ -94,35 +84,6 @@ void MorpheusZProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
     synthAudioSource.prepareToPlay(samplesPerBlock, sampleRate);
 }
 
-std::unique_ptr<juce::AudioSampleBuffer> MorpheusZProcessor::getWaveformPreset(
-    WaveformPreset preset,
-    int size) const
-{
-    switch (preset)
-    {
-    case WaveformPreset::Sine:
-        return waveformPresets::sine(size);
-    case WaveformPreset::Square:
-        return waveformPresets::square(size);
-    case WaveformPreset::Triangle:
-        return waveformPresets::triangle(size);
-    case WaveformPreset::Sawtooth:
-        return waveformPresets::sawTooth(size);
-    }
-    DBG(juce::String::formatted("An invalid preset wave was selected: %i", preset));
-    jassertfalse;
-    return waveformPresets::sine(size);
-}
-
-void MorpheusZProcessor::setWaveform(int waveformNum, const WaveformPreset preset)
-{
-    const std::unique_ptr<juce::AudioSampleBuffer> wave =
-        getWaveformPreset(preset, WAVEFORM_SIZE);
-    waveforms[waveformNum].copyFrom(0, 0, *wave, 0, 0, wave->getNumSamples());
-    synthAudioSource.setWave(waveformNum, waveforms[waveformNum]);
-    refreshWaveformEditor(waveformNum);
-}
-
 void MorpheusZProcessor::releaseResources()
 {
     synthAudioSource.releaseResources();
@@ -172,43 +133,25 @@ juce::AudioProcessorEditor* MorpheusZProcessor::createEditor()
 {
     return new MorpheusZEditor(
         *this,
-        apvts,
-        waveforms,
-        monitorMorphPosition);
+        appState);
 }
 
 //==============================================================================
 void MorpheusZProcessor::getStateInformation(juce::MemoryBlock& destData)
 {
-    StateHandler::getStateInformation(destData, waveforms[0], waveforms[1], apvts);
+    StateSerializer::getStateInformation(destData, appState);
 }
 
 void MorpheusZProcessor::setStateInformation(const void* data, int sizeInBytes)
 {
-    StateHandler::setStateInformation(data, sizeInBytes, waveforms[0], waveforms[1], apvts);
-    for (auto i = 0; i < waveforms.size(); ++i)
+    StateSerializer::setStateInformation(data, sizeInBytes, appState);
+    for (auto i = 0; i < appState.waveforms.size(); ++i)
     {
-        synthAudioSource.setWave(i, waveforms[i]);
-        refreshWaveformEditor(i);
-    }
-}
-
-void MorpheusZProcessor::setWaveformValue(
-    const int waveformNum,
-    const int index,
-    const float value)
-{
-    waveforms[waveformNum].setSample(0, index, value);
-    synthAudioSource.setWave(waveformNum, waveforms[waveformNum]);
-    refreshWaveformEditor(waveformNum);
-}
-
-void MorpheusZProcessor::refreshWaveformEditor(const int waveformNum) const
-{
-    auto editor = dynamic_cast<MorpheusZEditor*>(getActiveEditor());
-    if (editor != nullptr)
-    {
-        editor->waveformChanged(waveformNum);
+        auto editor = dynamic_cast<MorpheusZEditor*>(getActiveEditor());
+        if (editor != nullptr)
+        {
+            editor->waveformChanged(i);
+        }
     }
 }
 

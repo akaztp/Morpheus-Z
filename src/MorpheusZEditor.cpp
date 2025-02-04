@@ -1,26 +1,22 @@
 #include <juce_core/juce_core.h>
 #include "MorpheusZProcessor.h"
 #include "MorpheusZEditor.h"
-#include "Stylesheet.h"
-#include "StylesStore.h"
 #include "BinaryData.h"
+
 
 MorpheusZEditor::MorpheusZEditor(
     MorpheusZProcessor& p,
-    juce::AudioProcessorValueTreeState& apvts,
-    const std::vector<juce::AudioSampleBuffer>& waveforms,
-    ValueMonitor<double>& monitorMorphPosition)
+    AppState& appState)
     : AudioProcessorEditor(&p),
       processorRef(p),
-      waveforms(waveforms)
+      appState(appState)
 {
     initStylesStore();
-    initParams(apvts);
     initBinaries();
-    initWaveformWidget(apvts, monitorMorphPosition);
-    initSideControls(apvts);
-    initEnvelopeWidget(apvts);
-    initKeyboardComponent(processorRef.keyboardState);
+    initWaveformWidget(appState);
+    initSideControls(appState);
+    initEnvelopeWidget(appState);
+    initKeyboard(appState);
     initBounds();
 }
 
@@ -39,12 +35,6 @@ void MorpheusZEditor::initStylesStore()
     setLookAndFeel(&lookAndFeel);
 }
 
-void MorpheusZEditor::initParams(juce::AudioProcessorValueTreeState& apvts)
-{
-    waveformDisplayModeParam = dynamic_cast<juce::AudioParameterChoice*>(
-        apvts.getParameter(AppParams::waveformDisplayMode));
-}
-
 void MorpheusZEditor::initBinaries()
 {
     int binarySize = 0;
@@ -56,9 +46,9 @@ void MorpheusZEditor::initBinaries()
     jassert(backgroundImage->isValid());
 }
 
-void MorpheusZEditor::initSideControls(juce::AudioProcessorValueTreeState& apvts)
+void MorpheusZEditor::initSideControls(AppState& appState)
 {
-    sideControls = std::make_unique<SideControls>(apvts, stylesStore);
+    sideControls = std::make_unique<SideControls>(appState, stylesStore);
     addAndMakeVisible(*sideControls);
 }
 
@@ -71,24 +61,27 @@ void MorpheusZEditor::setSideControlsBounds(const int left, const int top) const
         sideControls->getPreferredHeight());
 }
 
-void MorpheusZEditor::initWaveformWidget(
-    juce::AudioProcessorValueTreeState& apvts,
-    ValueMonitor<double>& monitorMorphPosition)
+void MorpheusZEditor::initWaveformWidget(AppState& appState)
 {
     waveformWidget = std::make_unique<WaveformWidget>(
-        apvts, stylesStore, waveforms, monitorMorphPosition,
-        [this](const juce::Point<int>& former, const juce::Point<int>& later, const int waveformNum)
+        appState,
+        stylesStore,
+        [this, &appState](
+        const juce::Point<int>& former,
+        const juce::Point<int>& later,
+        const int waveformNum)
         {
             this->handleWaveformDraw(
                 waveformNum,
                 waveformWidget.get(),
                 former,
                 later,
-                &MorpheusZProcessor::setWaveformValue);
+                appState
+            );
         },
-        [this](WaveformPreset preset, int waveformNum)
+        [this](WaveformPreset::Type preset, int waveformNum)
         {
-            this->processorRef.setWaveform(waveformNum, preset);
+            this->setPresetWaveform(waveformNum, preset);
         }
     );
     addAndMakeVisible(*waveformWidget);
@@ -104,9 +97,9 @@ void MorpheusZEditor::setWaveformWidgetBounds(const int topY) const
         waveformWidget->getPreferredHeight());
 }
 
-void MorpheusZEditor::initEnvelopeWidget(juce::AudioProcessorValueTreeState& apvts)
+void MorpheusZEditor::initEnvelopeWidget(AppState& appState)
 {
-    envelopeWidget = std::make_unique<EnvelopeWidget>(apvts, stylesStore);
+    envelopeWidget = std::make_unique<EnvelopeWidget>(appState, stylesStore);
     addAndMakeVisible(*envelopeWidget);
 }
 
@@ -122,10 +115,10 @@ void MorpheusZEditor::setEnvelopeWidgetBounds(
         envelopeWidget->getPreferredHeight());
 }
 
-void MorpheusZEditor::initKeyboardComponent(juce::MidiKeyboardState& keyboardState)
+void MorpheusZEditor::initKeyboard(AppState& appState)
 {
     keyboardComponent = std::make_unique<juce::MidiKeyboardComponent>(
-        keyboardState,
+        appState.keyboardState,
         juce::MidiKeyboardComponent::horizontalKeyboard);
     addAndMakeVisible(*keyboardComponent);
 }
@@ -181,15 +174,15 @@ void MorpheusZEditor::handleWaveformDraw(
     const WaveformWidget* waveform,
     const juce::Point<int>& former,
     const juce::Point<int>& later,
-    void (MorpheusZProcessor::*processorCallBack)(int, int, float)) const
+    AppState& appState)
 {
-    switch (waveformDisplayModeParam->getIndex())
+    switch (appState.audioParameters.waveformDisplayMode->getIndex())
     {
     case WaveformDisplayMode::Cartesian:
-        handleWaveformCartDraw(waveformNum, waveform, former, later, processorCallBack);
+        handleWaveformCartDraw(waveformNum, waveform, former, later);
         break;
     case WaveformDisplayMode::Polar:
-        handleWaveformPolarDraw(waveformNum, waveform, former, later, processorCallBack);
+        handleWaveformPolarDraw(waveformNum, waveform, former, later);
         break;
     default:
         jassert(false);
@@ -200,8 +193,7 @@ void MorpheusZEditor::handleWaveformCartDraw(
     const int waveformNum,
     const WaveformWidget* widget,
     const juce::Point<int>& former,
-    const juce::Point<int>& later,
-    void (MorpheusZProcessor::*processorCallBack)(int, int, float)) const
+    const juce::Point<int>& later)
 {
     juce::Point<int> from = former;
     juce::Point<int> to = later;
@@ -211,7 +203,7 @@ void MorpheusZEditor::handleWaveformCartDraw(
         to = former;
     }
 
-    const int numSamples = waveforms[waveformNum].getNumSamples();
+    const int numSamples = appState.waveforms[waveformNum].getNumSamples();
     const auto height = static_cast<double>(widget->getWaveformHeight());
     const auto width = static_cast<double>(widget->getWaveformWidth());
     const auto fromY = static_cast<double>(from.getY());
@@ -223,7 +215,7 @@ void MorpheusZEditor::handleWaveformCartDraw(
     const auto yStep = (endValue - startValue) / (endIndex - startIndex);
     for (int sampleIndex = startIndex; sampleIndex <= endIndex; ++sampleIndex)
     {
-        (processorRef.*processorCallBack)(waveformNum, sampleIndex, static_cast<float>(startValue));
+        setWaveformValue(waveformNum, sampleIndex, static_cast<float>(startValue));
         startValue += yStep;
     }
 }
@@ -232,8 +224,7 @@ void MorpheusZEditor::handleWaveformPolarDraw(
     const int waveformNum,
     const WaveformWidget* widget,
     const juce::Point<int>& former,
-    const juce::Point<int>& later,
-    void (MorpheusZProcessor::*processorCallBack)(int, int, float)) const
+    const juce::Point<int>& later)
 {
     const auto height = widget->getWaveformHeight();
     const auto width = widget->getWaveformWidth();
@@ -252,7 +243,7 @@ void MorpheusZEditor::handleWaveformPolarDraw(
         fromPolar.y += juce::MathConstants<double>::twoPi;
     }
 
-    const int numSamples = waveforms[waveformNum].getNumSamples();
+    const int numSamples = appState.waveforms[waveformNum].getNumSamples();
     int sampleFrom = static_cast<int>(numSamples * fromPolar.y / juce::MathConstants<double>::twoPi);
     const int sampleTo = static_cast<int>(numSamples * toPolar.y / juce::MathConstants<double>::twoPi);
     const double valueStep = (toPolar.x - fromPolar.x) / (sampleTo - sampleFrom);
@@ -260,7 +251,7 @@ void MorpheusZEditor::handleWaveformPolarDraw(
     {
         for (; sampleFrom <= sampleTo; ++sampleFrom)
         {
-            (processorRef.*processorCallBack)(
+            setWaveformValue(
                 waveformNum,
                 sampleFrom % numSamples,
                 trimSample(static_cast<float>(fromPolar.x)));
@@ -271,7 +262,7 @@ void MorpheusZEditor::handleWaveformPolarDraw(
     {
         for (; sampleFrom > sampleTo; --sampleFrom)
         {
-            (processorRef.*processorCallBack)(
+            setWaveformValue(
                 waveformNum,
                 sampleFrom % numSamples,
                 trimSample(static_cast<float>(fromPolar.x)));
@@ -311,4 +302,23 @@ void MorpheusZEditor::paint(juce::Graphics& g)
 void MorpheusZEditor::waveformChanged(const int waveformNum) const
 {
     waveformWidget->waveformChanged(waveformNum);
+}
+
+void MorpheusZEditor::setPresetWaveform(
+    int waveformNum,
+    const WaveformPreset::Type preset) const
+{
+    auto wave = WaveformPreset::getWaveformPreset(preset, WAVEFORM_SIZE);
+    appState.waveforms[waveformNum]
+        .copyFrom(0, 0, *wave, 0, 0, wave->getNumSamples());
+    waveformChanged(waveformNum);
+}
+
+void MorpheusZEditor::setWaveformValue(
+    const int waveformNum,
+    const int index,
+    const float value) const
+{
+    appState.waveforms[waveformNum].setSample(0, index, value);
+    waveformChanged(waveformNum);
 }
